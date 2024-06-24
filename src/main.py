@@ -2,11 +2,13 @@
 
 import ast
 import re
+from datetime import datetime
 
 from complete import complete_triple, complete_triple_cot, chat_with_groq
 from hoare_triple import State, Triple
 from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
 from file_io import load_json
+from logger_setup import logger_setup
 
 DATA_FILE = 'data/mixtral_200624.json'
 MODEL = "mixtral-8x7b-32768"
@@ -77,13 +79,14 @@ def check_program(specification, code, explanation = None):
             return 0
 
 
-def analyze_and_print_results(data):
+def main(data, logger):
     total = 0
     non_cot_correct = 0
     cot_correct = 0
     no_explanation_correct = 0
 
     for task_id, task_data in data.items():
+        print()
         print(f"start task {task_id}")
         specification = task_data["specification"]
         precondition = task_data["precondition"]
@@ -96,9 +99,23 @@ def analyze_and_print_results(data):
         result_cot = analyze_code_with_precondition_cot(code, precondition)
 
         total += 1
-        cot_correct += check_program(specification, code, result_cot)
-        non_cot_correct += check_program(specification, code, result_non_cot)
-        no_explanation_correct += check_program(specification, code)
+        is_cot_correct = check_program(specification, code, result_cot)
+        is_non_cot_correct = check_program(specification, code, result_non_cot)
+        is_no_explanation_correct = check_program(specification, code)
+
+        cot_correct += is_cot_correct
+        non_cot_correct += is_non_cot_correct
+        no_explanation_correct += is_no_explanation_correct
+
+        if is_cot_correct != is_non_cot_correct:
+            logger.info(f"Task ID: {task_id}")
+            logger.info(f"Specification: {specification}")
+            logger.info(f"Code:\n{code}")
+            logger.info(f"COT Explanation: {result_cot}")
+            logger.info(f"non-COT Explanation: {result_non_cot}")
+            logger.info(f"COT Correct: {is_cot_correct}")
+            logger.info(f"non-COT Correct: {is_non_cot_correct}")
+            logger.info("=" * 50)
         print(f"total test: {total}")
         print(f"cot correct: {cot_correct}")
         print(f"non cot correct: {non_cot_correct}")
@@ -107,8 +124,8 @@ def analyze_and_print_results(data):
 
     non_cot_rate, cot_rate, no_explanation_rate = non_cot_correct/total, cot_correct/total, no_explanation_correct/total
 
-    print(non_cot_rate)
     print(cot_rate)
+    print(non_cot_rate)
     print(no_explanation_rate)
     return non_cot_rate, cot_rate, no_explanation_rate
 
@@ -116,4 +133,6 @@ def analyze_and_print_results(data):
 
 if __name__ == "__main__":
     data = load_json(DATA_FILE)
-    analyze_and_print_results(data)
+    base = datetime.now().strftime("%Y%m%d-%H%M%S")
+    logger = logger_setup(base, "code_correctness")
+    main(data, logger)
