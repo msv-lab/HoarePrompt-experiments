@@ -92,12 +92,12 @@ def complete_triple_cot(triple: Triple) -> str:
             ctx.append(Triple(pre, triple.command.orelse, else_completion))
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.For):
-        pre = triple.precondition
+        pre = State.TOP
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.While):
-        pre = triple.precondition
+        pre = State.TOP
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
