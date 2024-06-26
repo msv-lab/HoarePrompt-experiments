@@ -28,3 +28,10 @@ def extract_precondition_from_response(response_content):
     if match:
         return match.group(1)
     return response_content
+
+def extract_correctness_from_response(response_content: str) -> str:
+    pattern = r"Correctness:\s*\*\*(.*?)\*\*"
+    match = re.search(pattern, response_content)
+    if match:
+        return match.group(1)
+    return response_content

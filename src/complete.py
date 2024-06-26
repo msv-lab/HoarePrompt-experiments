@@ -43,7 +43,7 @@ generic_ctx = [
 ]
 
 
-@retry(wait=wait_random_exponential(min=1, max=180), stop=stop_after_attempt(10))
+@retry(wait=wait_random_exponential(min=1, max=180), stop=stop_after_attempt(15))
 def chat_with_groq(**kwargs):
     return client.chat.completions.create(**kwargs)
 
@@ -90,6 +90,18 @@ def complete_triple_cot(triple: Triple) -> str:
         if triple.command.orelse:
             else_completion = complete_triple_cot(Triple(pre, triple.command.orelse, State.UNKNOWN))
             ctx.append(Triple(pre, triple.command.orelse, else_completion))
+        return complete_triple(triple, ctx)
+    if isinstance(triple.command, ast.Try):
+        pre = triple.precondition
+        try_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
+        except_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.body, State.UNKNOWN))
+        ctx = [Triple(pre, triple.command.body, try_completion), Triple(State.UNKNOWN, triple.command.body, except_completion)]
+        if triple.command.orelse:
+            else_completion = complete_triple_cot(Triple(try_completion, triple.command.orelse, State.UNKNOWN))
+            ctx.append(Triple(pre, triple.command.orelse, else_completion))
+        if triple.command.finalbody:
+            finally_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.finalbody, State.UNKNOWN))
+            ctx.append(Triple(State.UNKNOWN, triple.command.orelse, finally_completion))
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.For):
         pre = State.TOP

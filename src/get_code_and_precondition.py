@@ -80,9 +80,9 @@ if __name__ == "__main__":
     sanitized_mbpp_data = load_json("sanitized-mbpp.json")
 
     # Generate and test code from the sanitized MBPP data
-    results = gen_code_and_precondition(sanitized_mbpp_data[0])
+    results = gen_code_and_precondition(sanitized_mbpp_data)
 
     # Save results to JSON file in the data folder
-    output_file = os.path.join('data', 'code_and_test.json')
+    output_file = os.path.join('data', 'mixtral_250624.json')
     save_results(output_file, results)
     print(f"Results saved to {output_file}")
