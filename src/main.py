@@ -10,7 +10,7 @@ from file_io import load_json
 from logger_setup import logger_setup
 from extractor import extract_correctness_from_response
 
-DATA_FILE = 'data/mixtral_250624.json'
+DATA_FILE = 'data/mixtral_200624.json'
 MODEL = "mixtral-8x7b-32768"
 DEFAULT_TEMPERATURE = 0.7
 
