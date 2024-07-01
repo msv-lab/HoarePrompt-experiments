@@ -1,7 +1,8 @@
 import os
+from datetime import datetime
 
-from complete import chat_with_groq
-from prompt import CODE_GEN_PROMPT, PRECONDITION_EXTRACTION_PROMPT
+from complete import chat_with_groq1
+from prompt import CODE_GEN_PROMPT, PRECONDITION_EXTRACTION_PROMPT_COMPLEX
 from executor import execute_tests, summary
 from extractor import extract_precondition_from_response, extract_code_from_response
 from file_io import load_json, save_results
@@ -24,7 +25,7 @@ def gen_code(task):
     messages.append(user_message)
 
     print(f"Processing task ID: {task_id}")
-    response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
     model_answer = response.choices[0].message.content
     generated_code = extract_code_from_response(model_answer)
     total_tests, passed_tests, _ = execute_tests(task, generated_code)
@@ -52,9 +53,9 @@ def gen_precondition(task_result):
         "name": "user",
         "content": f"Specification:\n{specification}\nCode:\n{code}"
     }
-    messages = PRECONDITION_EXTRACTION_PROMPT.copy()
+    messages = PRECONDITION_EXTRACTION_PROMPT_COMPLEX.copy()
     messages.append(user_message)
-    response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
     model_answer = response.choices[0].message.content
     precondition = extract_precondition_from_response(model_answer)
     task_result["precondition"] = precondition
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     results = gen_code_and_precondition(sanitized_mbpp_data)
 
     # Save results to JSON file in the data folder
-    output_file = os.path.join('data', 'mixtral_250624.json')
+    timestamp = datetime.now().strftime("%Y%m%d")
+    output_file = os.path.join('data', f'mixtral_{timestamp}.json')
     save_results(output_file, results)
     print(f"Results saved to {output_file}")

@@ -1,5 +1,3 @@
-# logger_setup.py
-
 import logging
 import os
 
@@ -17,8 +15,9 @@ def logger_setup(base, name):
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # formatter = logging.Formatter(
+    #     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
 

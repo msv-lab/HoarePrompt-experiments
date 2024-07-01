@@ -1,5 +1,3 @@
-# file_io.py
-
 import json
 
 def save_results(result_file, results):

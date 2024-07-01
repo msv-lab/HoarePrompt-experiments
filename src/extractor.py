@@ -1,5 +1,3 @@
-# extractor.py
-
 import re
 
 

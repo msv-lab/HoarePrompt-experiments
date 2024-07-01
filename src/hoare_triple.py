@@ -1,5 +1,3 @@
-# hoare_triple.py
-
 from dataclasses import dataclass
 from enum import Enum, auto
 import ast

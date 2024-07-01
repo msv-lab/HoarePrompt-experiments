@@ -1,5 +1,3 @@
-# complete.py
-
 import os
 import openai
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -11,7 +9,8 @@ from prompt import VERIFYER_SYSTEM_PROMPT
 from extractor import extract_postcondition
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+client1 = Groq(api_key=os.environ.get("GROQ_API_KEY1"))
+client2 = Groq(api_key=os.environ.get("GROQ_API_KEY2"))
 
 DEFAULT_TEMPERATURE = 0.7
 MODEL = "mixtral-8x7b-32768"
@@ -44,10 +43,14 @@ generic_ctx = [
 ]
 
 
-@retry(wait=wait_random_exponential(min=1, max=180), stop=stop_after_attempt(15))
-def chat_with_groq(**kwargs):
-    return client.chat.completions.create(**kwargs)
+@retry(wait=wait_random_exponential(min=1, max=240), stop=stop_after_attempt(15))
+def chat_with_groq1(**kwargs):
+    return client1.chat.completions.create(**kwargs)
 
+
+@retry(wait=wait_random_exponential(min=1, max=240), stop=stop_after_attempt(15))
+def chat_with_groq2(**kwargs):
+    return client2.chat.completions.create(**kwargs)
 
 def chat_with_gpt(**kwargs):
     pass
@@ -59,7 +62,7 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx):
     for ctx in context_triples:
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_groq1(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
     return post
 
@@ -105,12 +108,12 @@ def complete_triple_cot(triple: Triple) -> str:
             ctx.append(Triple(State.UNKNOWN, triple.command.orelse, finally_completion))
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.For):
-        pre = State.TOP
+        pre = triple.precondition
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.While):
-        pre = State.TOP
+        pre = triple.precondition
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
@@ -122,3 +125,14 @@ def complete_triple_cot(triple: Triple) -> str:
     if isinstance(triple.command, (ast.Import, ast.ImportFrom, ast.Assert)):
         return triple.precondition
     raise ValueError(f"unsupported statement type: {triple.command} {pprint_cmd(triple.command)}")
+
+
+def analyze_code_with_precondition_non_cot(parsed_code, precondition: str) -> str:
+    triple = Triple(precondition, parsed_code, State.UNKNOWN)
+    postcondition = complete_triple(triple)
+    return postcondition
+
+def analyze_code_with_precondition_cot(parsed_code, precondition: str) -> str:
+    triple = Triple(precondition, parsed_code, State.UNKNOWN)
+    postcondition = complete_triple_cot(triple)
+    return postcondition
