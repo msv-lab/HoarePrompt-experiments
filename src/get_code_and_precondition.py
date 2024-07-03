@@ -2,14 +2,13 @@ import os
 from datetime import datetime
 
 from complete import chat_with_groq1
-from prompt import CODE_GEN_PROMPT, PRECONDITION_EXTRACTION_PROMPT_COMPLEX
+from prompt import CODE_GEN_PROMPT, PRECONDITION_EXTRACTION_PROMPT
 from executor import execute_tests, summary
 from extractor import extract_precondition_from_response, extract_code_from_response
 from file_io import load_json, save_results
 
 MODEL = "mixtral-8x7b-32768"
 DEFAULT_TEMPERATURE = 0.7
-MAX_CONCURRENT_TASKS = 15
 
 
 def gen_code(task):
@@ -53,7 +52,7 @@ def gen_precondition(task_result):
         "name": "user",
         "content": f"Specification:\n{specification}\nCode:\n{code}"
     }
-    messages = PRECONDITION_EXTRACTION_PROMPT_COMPLEX.copy()
+    messages = PRECONDITION_EXTRACTION_PROMPT.copy()
     messages.append(user_message)
     response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
     model_answer = response.choices[0].message.content

@@ -3,10 +3,12 @@ from enum import Enum, auto
 import ast
 import astor
 
+
 class State(Enum):
     TOP = auto()
     BOTTOM = auto()
     UNKNOWN = auto()
+
 
 def print_state(s):
     if s == State.UNKNOWN:
@@ -16,6 +18,7 @@ def print_state(s):
     if s == State.BOTTOM:
         return "the state is unreachable"
     return s
+
 
 @dataclass
 class Triple:
@@ -29,8 +32,10 @@ class Triple:
     def with_postcondition(self, pc):
         return Triple(self.precondition, self.command, pc)
 
+
 def parse_stmt(source):
     return ast.parse(source).body[0]
+
 
 def pprint_cmd(cmd):
     if isinstance(cmd, list):

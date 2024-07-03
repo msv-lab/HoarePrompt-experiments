@@ -8,7 +8,6 @@ from hoare_triple import State, Triple, parse_stmt, pprint_cmd
 from prompt import VERIFYER_SYSTEM_PROMPT
 from extractor import extract_postcondition
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
 client1 = Groq(api_key=os.environ.get("GROQ_API_KEY1"))
 client2 = Groq(api_key=os.environ.get("GROQ_API_KEY2"))
 
@@ -52,15 +51,13 @@ def chat_with_groq1(**kwargs):
 def chat_with_groq2(**kwargs):
     return client2.chat.completions.create(**kwargs)
 
-def chat_with_gpt(**kwargs):
-    pass
-
 
 def complete_triple(incomplete_triple, context_triples=generic_ctx):
     msgs = []
     msgs.append({"role": "system", "content": VERIFYER_SYSTEM_PROMPT})
     for ctx in context_triples:
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
+        msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
     response = chat_with_groq1(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
@@ -68,9 +65,7 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx):
 
 
 def format_prompt(triple: Triple) -> str:
-    if triple.postcondition is State.UNKNOWN:
-        return f"Precondition: {triple.precondition}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```"
-    return f"Precondition: {triple.precondition}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```\nPostcondition: **{triple.postcondition}**"
+    return f"Precondition: {triple.precondition}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```"
 
 
 def complete_triple_cot(triple: Triple) -> str:
@@ -99,7 +94,8 @@ def complete_triple_cot(triple: Triple) -> str:
         pre = triple.precondition
         try_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         except_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.body, State.UNKNOWN))
-        ctx = [Triple(pre, triple.command.body, try_completion), Triple(State.UNKNOWN, triple.command.body, except_completion)]
+        ctx = [Triple(pre, triple.command.body, try_completion),
+               Triple(State.UNKNOWN, triple.command.body, except_completion)]
         if triple.command.orelse:
             else_completion = complete_triple_cot(Triple(try_completion, triple.command.orelse, State.UNKNOWN))
             ctx.append(Triple(pre, triple.command.orelse, else_completion))
@@ -131,6 +127,7 @@ def analyze_code_with_precondition_non_cot(parsed_code, precondition: str) -> st
     triple = Triple(precondition, parsed_code, State.UNKNOWN)
     postcondition = complete_triple(triple)
     return postcondition
+
 
 def analyze_code_with_precondition_cot(parsed_code, precondition: str) -> str:
     triple = Triple(precondition, parsed_code, State.UNKNOWN)
