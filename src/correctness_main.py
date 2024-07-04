@@ -4,13 +4,13 @@ from math import sqrt
 import csv
 import os
 
-from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot, chat_with_groq2
+from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot, chat_with_groq1
 from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
 from file_io import load_json
 from logger_setup import logger_setup
 from extractor import extract_correctness_from_response
 
-DATA_FILE = 'data/mixtral_20240625(complex).json'
+DATA_FILE = 'data/mixtral_20240630(complex).json'
 MODEL = "mixtral-8x7b-32768"
 DEFAULT_TEMPERATURE = 0.7
 
@@ -24,7 +24,7 @@ def check_program(specification, code, explanation=None):
         }
         messages = CHECK_CODE_PROMPT_WITH_EXPLANATION.copy()
         messages.append(user_message)
-        response = chat_with_groq2(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+        response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
         model_answer = response.choices[0].message.content
         correctness = extract_correctness_from_response(model_answer)
         return correctness, model_answer
@@ -37,7 +37,7 @@ def check_program(specification, code, explanation=None):
         }
         messages = CHECK_CODE_PROMPT.copy()
         messages.append(user_message)
-        response = chat_with_groq2(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+        response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
         model_answer = response.choices[0].message.content
         correctness = extract_correctness_from_response(model_answer)
         return correctness, model_answer
@@ -180,8 +180,11 @@ def main(data, logger):
 
     logger.info(f"CoT Accuracy: {cot_rate}")
     logger.info(f"non-CoT Accuracy: {non_cot_rate}")
-    logger.info(f"No Explanation Accuracy: {no_explanation_rate}")
+    logger.info(f"No Explanation Accuracy: {no_explanation_rate}\n")
 
+    logger.info(f"CoT Confusion Matrix: tp-{tp_cot}, fp-{fp_cot}, fn-{fn_cot}, tn-{tn_cot}")
+    logger.info(f"non-CoT Confusion Matrix: tp-{tp_non_cot}, fp-{fp_non_cot}, fn-{fn_non_cot}, tn-{tn_non_cot}")
+    logger.info(f"No Explanation Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
     logger.info(f"CoT MCC: {mcc_cot}")
     logger.info(f"non-CoT MCC: {mcc_non_cot}")
     logger.info(f"No Explanation MCC: {mcc_no_explanation}")

@@ -2,13 +2,10 @@ import re
 
 
 def extract_postcondition(s: str) -> str:
-    pattern = r"Postcondition:\s*\*\*(.*?)\*\*|Postcondition:\s*(.*)"
+    pattern = r"Postcondition:\s*(.*)"
     match = re.search(pattern, s)
     if match:
-        if match.group(1):
-            return match.group(1).strip()
-        elif match.group(2):
-            return match.group(2).strip()
+        return match.group(1)
     return s
 
 
