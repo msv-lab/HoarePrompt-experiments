@@ -1,5 +1,4 @@
 import os
-import openai
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from groq import Groq
 import ast
@@ -8,8 +7,7 @@ from hoare_triple import State, Triple, parse_stmt, pprint_cmd
 from prompt import VERIFYER_SYSTEM_PROMPT
 from extractor import extract_postcondition
 
-client1 = Groq(api_key=os.environ.get("GROQ_API_KEY1"))
-client2 = Groq(api_key=os.environ.get("GROQ_API_KEY2"))
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 DEFAULT_TEMPERATURE = 0.7
 MODEL = "mixtral-8x7b-32768"
@@ -43,14 +41,8 @@ generic_ctx = [
 
 
 @retry(wait=wait_random_exponential(min=1, max=240), stop=stop_after_attempt(15))
-def chat_with_groq1(**kwargs):
-    return client1.chat.completions.create(**kwargs)
-
-
-@retry(wait=wait_random_exponential(min=1, max=240), stop=stop_after_attempt(15))
-def chat_with_groq2(**kwargs):
-    return client2.chat.completions.create(**kwargs)
-
+def chat_with_groq(**kwargs):
+    return client.chat.completions.create(**kwargs)
 
 
 def complete_triple(incomplete_triple, context_triples=generic_ctx):
@@ -59,7 +51,7 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx):
     for ctx in context_triples:
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq1(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
     return post
 

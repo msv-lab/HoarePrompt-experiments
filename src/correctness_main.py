@@ -4,7 +4,7 @@ from math import sqrt
 import csv
 import os
 
-from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot, chat_with_groq1
+from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot, chat_with_groq
 from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
 from file_io import load_json
 from logger_setup import logger_setup
@@ -24,7 +24,7 @@ def check_program(specification, code, explanation=None):
         }
         messages = CHECK_CODE_PROMPT_WITH_EXPLANATION.copy()
         messages.append(user_message)
-        response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+        response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
         model_answer = response.choices[0].message.content
         correctness = extract_correctness_from_response(model_answer)
         return correctness, model_answer
@@ -37,7 +37,7 @@ def check_program(specification, code, explanation=None):
         }
         messages = CHECK_CODE_PROMPT.copy()
         messages.append(user_message)
-        response = chat_with_groq1(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+        response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
         model_answer = response.choices[0].message.content
         correctness = extract_correctness_from_response(model_answer)
         return correctness, model_answer
