@@ -3,7 +3,7 @@ import re
 
 def extract_postcondition(s: str) -> str:
     pattern = r"Postcondition:\s*(.*)"
-    match = re.search(pattern, s)
+    match = re.search(pattern, s, re.DOTALL)
     if match:
         return match.group(1)
     return s
@@ -36,6 +36,3 @@ def extract_correctness_from_response(response_content: str) -> str:
         elif match.group(2):
             return match.group(2).strip()
     return response_content
-
-
-print(extract_correctness_from_response("Correctness: True,"))
