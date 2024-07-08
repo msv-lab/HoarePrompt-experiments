@@ -3,7 +3,7 @@ import re
 
 def extract_postcondition(s: str) -> str:
     pattern = r"Postcondition:\s*(.*)"
-    match = re.search(pattern, s)
+    match = re.search(pattern, s, re.DOTALL)
     if match:
         return match.group(1)
     return s
