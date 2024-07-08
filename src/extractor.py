@@ -28,7 +28,7 @@ def extract_precondition_from_response(response_content):
     return response_content
 
 def extract_correctness_from_response(response_content: str) -> str:
-    pattern = r"Correctness:\s*\*\*(.*?)\*\*|Correctness:\s*(.*)"
+    pattern = r"Correctness:\s*\*\*(.*?)\*\*|Correctness:\s*(True|False)"
     match = re.search(pattern, response_content)
     if match:
         if match.group(1):
@@ -36,3 +36,6 @@ def extract_correctness_from_response(response_content: str) -> str:
         elif match.group(2):
             return match.group(2).strip()
     return response_content
+
+
+print(extract_correctness_from_response("Correctness: True,"))

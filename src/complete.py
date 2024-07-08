@@ -3,7 +3,7 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 from groq import Groq
 import ast
 
-from hoare_triple import State, Triple, parse_stmt, pprint_cmd
+from hoare_triple import State, Triple, parse_stmt, pprint_cmd, print_state
 from prompt import VERIFYER_SYSTEM_PROMPT
 from extractor import extract_postcondition
 
@@ -50,16 +50,14 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx):
     msgs.append({"role": "system", "content": VERIFYER_SYSTEM_PROMPT})
     for ctx in context_triples:
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
+        msgs.append({"role": "assistant", "content": f"Postcondition: {ctx.postcondition}"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
     response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
     return post
 
-
 def format_prompt(triple: Triple) -> str:
-    if triple.postcondition is State.UNKNOWN:
-        return f"Precondition: {triple.precondition}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```"
-    return f"Precondition: {triple.precondition}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```\nPostcondition: {triple.postcondition}"
+    return f"Precondition: {print_state(triple.precondition)}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```"
 
 
 def complete_triple_cot(triple: Triple) -> str:
