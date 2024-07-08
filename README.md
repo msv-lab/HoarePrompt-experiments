@@ -12,7 +12,7 @@ The project consists of two runnable parts:
 1. **Generating Code and Information**:
    To generate a set of sanitized-mbpp codes and related information, run the following command in the project root directory:
    ```bash
-   python3 src/generate_and_test_code.py
+   python3 src/get_code_and_precondition.py
    ```
    This will create the necessary files in the `data` folder.
 
