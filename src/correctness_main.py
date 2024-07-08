@@ -71,10 +71,12 @@ def main(data, logger):
     cot_correct = 0
     no_explanation_correct = 0
 
+    # use for MCC
     tp_cot, tn_cot, fp_cot, fn_cot = 0, 0, 0, 0
     tp_non_cot, tn_non_cot, fp_non_cot, fn_non_cot = 0, 0, 0, 0
     tp_no_explanation, tn_no_explanation, fp_no_explanation, fn_no_explanation = 0, 0, 0, 0
 
+    # CSV logger header
     columns = [
         "Task ID", "Specification", "Code", "Test Result",
         "COT Correctness", "non-COT Correctness", "No Explanation Correctness",
@@ -85,6 +87,7 @@ def main(data, logger):
             writer = csv.DictWriter(file, fieldnames=columns)
             writer.writeheader()
 
+    # main loop, iterate each task in data
     for task_id, task_data in data.items():
         specification = task_data["specification"]
         precondition = task_data["precondition"]
@@ -93,20 +96,24 @@ def main(data, logger):
 
         logger.debug(f"Start Task {task_id}")
 
+        # if connot parse, skip this task
         try:
             parsed_code = ast.parse(code).body
         except Exception as e:
             logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
             continue
 
+        # get cot and non-cot postcondition
         non_cot_explanation = analyze_code_with_precondition_non_cot(parsed_code, precondition)
         cot_explanation = analyze_code_with_precondition_cot(parsed_code, precondition)
 
+        # use postcondition to analyse code correctness
         total += 1
         cot_correctness_str, cot_response = check_program(specification, code, cot_explanation)
         non_cot_correctness_str, non_cot_response = check_program(specification, code, non_cot_explanation)
         no_explanation_correctness_str, no_explanation_response = check_program(specification, code)
 
+        # if connot extract correctness, add a warning to logger. Need to manually fix it after finish.
         if cot_correctness_str not in ["True", "False"]:
             logger.warning(f"Unexpected correctness value for COT. Task ID: {task_id}")
             cot_correctness_str = "False"
@@ -122,6 +129,7 @@ def main(data, logger):
         non_cot_correctness_bool = non_cot_correctness_str == "True"
         no_explanation_correctness_bool = no_explanation_correctness_str == "True"
 
+        # update variables
         if cot_correctness_bool == test_result:
             cot_correct += 1
         if non_cot_correctness_bool == test_result:
@@ -137,6 +145,7 @@ def main(data, logger):
             no_explanation_correctness_bool, test_result, tp_no_explanation, tn_no_explanation, fp_no_explanation,
             fn_no_explanation)
 
+        # write to logger
         logger.debug(f"Specification: {specification}")
         logger.debug(f"Code:\n{code}")
         logger.debug(f"Test Pass Rate {task_data['test_result']}")
@@ -154,6 +163,7 @@ def main(data, logger):
         logger.debug(f"non-CoT Total Correct: {non_cot_correct}")
         logger.debug(f"No Explanation Total Correct: {no_explanation_correct}\n\n\n")
 
+        # write to csv logger
         result = {
             "Task ID": task_id,
             "Specification": specification,
@@ -171,6 +181,7 @@ def main(data, logger):
             writer = csv.DictWriter(file, fieldnames=columns)
             writer.writerow(result)
 
+    # calculate final result and write to logger
     cot_rate = cot_correct / total
     non_cot_rate = non_cot_correct / total
     no_explanation_rate = no_explanation_correct / total
