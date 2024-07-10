@@ -103,15 +103,19 @@ def main(data, logger):
             logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
             continue
 
-        # get cot and non-cot postcondition
-        non_cot_explanation = analyze_code_with_precondition_non_cot(parsed_code, precondition)
-        cot_explanation = analyze_code_with_precondition_cot(parsed_code, precondition)
+        try:
+            # get cot and non-cot postcondition
+            non_cot_explanation = analyze_code_with_precondition_non_cot(parsed_code, precondition)
+            cot_explanation = analyze_code_with_precondition_cot(parsed_code, precondition)
 
-        # use postcondition to analyse code correctness
-        total += 1
-        cot_correctness_str, cot_response = check_program(specification, code, cot_explanation)
-        non_cot_correctness_str, non_cot_response = check_program(specification, code, non_cot_explanation)
-        no_explanation_correctness_str, no_explanation_response = check_program(specification, code)
+            # use postcondition to analyse code correctness
+            total += 1
+            cot_correctness_str, cot_response = check_program(specification, code, cot_explanation)
+            non_cot_correctness_str, non_cot_response = check_program(specification, code, non_cot_explanation)
+            no_explanation_correctness_str, no_explanation_response = check_program(specification, code)
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            break
 
         # if connot extract correctness, add a warning to logger. Need to manually fix it after finish.
         if cot_correctness_str not in ["True", "False"]:
