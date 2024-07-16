@@ -64,7 +64,7 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx):
     return post
 
 def format_prompt(triple: Triple) -> str:
-    return f"Precondition: {print_state(triple.precondition)}\nProgram statement:\n```\n{pprint_cmd(triple.command)}```"
+    return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```"
 
 
 def complete_triple_cot(triple: Triple) -> str:
