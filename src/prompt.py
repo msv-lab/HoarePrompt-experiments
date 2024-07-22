@@ -1,4 +1,10 @@
-VERIFYER_SYSTEM_PROMPT = """You have been assigned the role of a program verifier. Based on the preconditions and the Python program fragment, provide the postconditions."""
+VERIFYER_SYSTEM_PROMPT = """You are assigned the role of a program verifier, responsible for completing Hoare triples. Each Hoare triple is made up of three components: a precondition, a program fragment, and a postcondition. The precondition and the postcondition are expressed in natural language.
+
+Precondition: describes the initial state of the program variables before the execution of the program fragment. This description should only include the values of the variables, without detailing the operational aspects of the program.
+
+Program Fragment: This is a given part of the task and is not something you need to create or modify.
+
+Postcondition: describes the state of the program variables after the execution of the program fragment with the initial state described in the precondition. This description should include both the values of the variables and the relationships between them. Similar to the precondition, avoid explaining how the program operates; concentrate solely on the variable values and their interrelations."""
 
 CODE_GEN_PROMPT = [{'role': 'system',
                     'content': 'You are assigned the role of a Python programmer. Your task is to write the corresponding Python program based on the given natural language specifications and test case.'},
@@ -63,7 +69,7 @@ CHECK_CODE_PROMPT_WITH_EXPLANATION = [{'role': 'system',
                                       ]
 
 CHECK_CODE_PROMPT = [{'role': 'system',
-                      'content': 'You have been assigned the role of a program verifier. Your task is to determine the correctness of a given Python program based on the provided natural language specification.'},
+                      'content': 'You have been assigned the role of a program verifier. Your task is to determine the correctness of a given Python program based on the provided natural language specification. If the program meets the specification, provide "True" as the Correctness; otherwise, provide "False". Partially correct programs should be considered incorrect.'},
                      {'role': 'user', 'name': 'example_user',
                       'content': 'Specification: Write a function to count the most common words in a dictionary.\nCode:\n```from collections import Counter\r\ndef count_common(words):\r\n    counter = Counter(words)\r\n    most_common = counter.most_common(1)\r\n    return most_common\n```'},
                      {'role': 'assistant',

@@ -52,9 +52,11 @@ def chat_with_gpt(**kwargs):
     return openai.Completion.creat(**kwargs)
 
 
-def complete_triple(incomplete_triple, context_triples=generic_ctx):
-    msgs = []
-    msgs.append({"role": "system", "content": VERIFYER_SYSTEM_PROMPT})
+def complete_triple(incomplete_triple, context_triples=generic_ctx, example_number=5):
+    if len(context_triples) < example_number:
+        context_triples = generic_ctx[:example_number - len(context_triples)] + context_triples
+
+    msgs = [{"role": "system", "content": VERIFYER_SYSTEM_PROMPT}]
     for ctx in context_triples:
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
         msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
