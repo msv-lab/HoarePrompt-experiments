@@ -47,6 +47,7 @@ generic_ctx = [
 def chat_with_groq(**kwargs):
     return client.chat.completions.create(**kwargs)
 
+
 @retry(wait=wait_random_exponential(min=1, max=300), stop=stop_after_attempt(15))
 def chat_with_gpt(**kwargs):
     return openai.Completion.creat(**kwargs)
@@ -55,7 +56,6 @@ def chat_with_gpt(**kwargs):
 def complete_triple(incomplete_triple, context_triples=generic_ctx, example_number=5):
     if len(context_triples) < example_number:
         context_triples = generic_ctx[:example_number - len(context_triples)] + context_triples
-
     msgs = [{"role": "system", "content": VERIFYER_SYSTEM_PROMPT}]
     for ctx in context_triples:
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
@@ -64,6 +64,7 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx, example_numb
     response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
     return post
+
 
 def format_prompt(triple: Triple) -> str:
     return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```"
@@ -77,6 +78,12 @@ def complete_triple_cot(triple: Triple) -> str:
         return post
     if isinstance(triple.command, list):
         pre = triple.precondition
+        if len(triple.command) == 1 and isinstance(
+                triple.command[0],
+                (ast.Assign, ast.AugAssign, ast.Expr, ast.Return, ast.Raise, ast.Pass, ast.Break, ast.Continue)):
+            overall_post = complete_triple(triple)
+            return overall_post
+
         ctx = []
         for subcmd in triple.command:
             completion = complete_triple_cot(Triple(pre, subcmd, State.UNKNOWN))

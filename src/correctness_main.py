@@ -8,9 +8,9 @@ from complete import analyze_code_with_precondition_non_cot, analyze_code_with_p
 from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
 from file_io import load_json
 from logger_setup import logger_setup
-from extractor import extract_correctness_from_response
+from extractor import extract_correctness_from_response, replace_function_name
 
-DATA_FILE = 'data/mixtral_20240715(complex).json'
+DATA_FILE = 'data/mixtral_20240630(complex).json'
 MODEL = "mixtral-8x7b-32768"
 DEFAULT_TEMPERATURE = 0.7
 
@@ -92,13 +92,14 @@ def main(data, logger):
         specification = task_data["specification"]
         precondition = task_data["precondition"]
         code = task_data["code"]
+        replaced_code = replace_function_name(code)
         test_result = task_data["test_result"] == 1
 
         logger.debug(f"Start Task {task_id}")
 
         # if connot parse, skip this task
         try:
-            parsed_code = ast.parse(code).body
+            parsed_code = ast.parse(replaced_code).body
         except Exception as e:
             logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
             continue
@@ -110,8 +111,8 @@ def main(data, logger):
 
             # use postcondition to analyse code correctness
             total += 1
-            cot_correctness_str, cot_response = check_program(specification, code, cot_explanation)
-            non_cot_correctness_str, non_cot_response = check_program(specification, code, non_cot_explanation)
+            cot_correctness_str, cot_response = check_program(specification, replaced_code, cot_explanation)
+            non_cot_correctness_str, non_cot_response = check_program(specification, replaced_code, non_cot_explanation)
             no_explanation_correctness_str, no_explanation_response = check_program(specification, code)
         except Exception as e:
             logger.error(f"Error: {e}")
