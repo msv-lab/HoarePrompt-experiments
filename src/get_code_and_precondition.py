@@ -63,6 +63,7 @@ def gen_precondition(task_result):
 
 
 def gen_code_and_precondition(data):
+    # TODO: add test case into data
     results = {}
     for task in data:
         task_result = gen_code(task)

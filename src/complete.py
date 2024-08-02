@@ -7,6 +7,7 @@ import ast
 from hoare_triple import State, Triple, parse_stmt, pprint_cmd, print_state
 from prompt import VERIFYER_SYSTEM_PROMPT
 from extractor import extract_postcondition
+from multi_function_auxiliary import FunctionDefVisitor, get_called_function_name, get_func_triple, find_function_calls
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -70,59 +71,75 @@ def format_prompt(triple: Triple) -> str:
     return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```"
 
 
-def complete_triple_cot(triple: Triple) -> str:
+def complete_triple_cot(triple: Triple, func_map: dict) -> str:
     assert triple.postcondition == State.UNKNOWN
     if isinstance(triple.command,
                   (ast.Assign, ast.AugAssign, ast.Expr, ast.Return, ast.Raise, ast.Pass, ast.Break, ast.Continue)):
-        post = complete_triple(triple)
+        call_nodes = find_function_calls(triple.command)
+        if call_nodes:
+            ctx = []
+            for call_node in call_nodes:
+                func_name = get_called_function_name(call_node.func)
+                func_triple = get_func_triple(func_map, func_name, triple.precondition, call_node)
+                if func_triple == []:
+                    continue
+                elif func_triple.postcondition == State.UNKNOWN:
+                    func_post = complete_triple_cot(func_triple, func_map)
+                    ctx.append(Triple(func_triple.postcondition, func_triple.command, func_post))
+                else:
+                    ctx.append(func_triple)
+            post = complete_triple(triple, ctx)
+        else:
+            post = complete_triple(triple)
         return post
     if isinstance(triple.command, list):
         pre = triple.precondition
-        if len(triple.command) == 1 and isinstance(
-                triple.command[0],
-                (ast.Assign, ast.AugAssign, ast.Expr, ast.Return, ast.Raise, ast.Pass, ast.Break, ast.Continue)):
-            overall_post = complete_triple(triple)
-            return overall_post
+        # if len(triple.command) == 1 and isinstance(
+        #         triple.command[0],
+        #         (ast.Assign, ast.AugAssign, ast.Expr, ast.Return, ast.Raise, ast.Pass, ast.Break, ast.Continue)):
+        #     overall_post = complete_triple(triple)
+        #     return overall_post
 
         ctx = []
         for subcmd in triple.command:
-            completion = complete_triple_cot(Triple(pre, subcmd, State.UNKNOWN))
+            completion = complete_triple_cot(Triple(pre, subcmd, State.UNKNOWN), func_map)
             ctx.append(Triple(pre, subcmd, completion))
             pre = completion
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.If):
         pre = triple.precondition
-        then_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
+        then_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN), func_map)
         ctx = [Triple(pre, triple.command.body, then_completion)]
         if triple.command.orelse:
-            else_completion = complete_triple_cot(Triple(pre, triple.command.orelse, State.UNKNOWN))
+            else_completion = complete_triple_cot(Triple(pre, triple.command.orelse, State.UNKNOWN), func_map)
             ctx.append(Triple(pre, triple.command.orelse, else_completion))
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.Try):
         pre = triple.precondition
-        try_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
-        except_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.body, State.UNKNOWN))
-        ctx = [Triple(pre, triple.command.body, try_completion), Triple(State.UNKNOWN, triple.command.body, except_completion)]
+        try_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN), func_map)
+        except_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.body, State.UNKNOWN), func_map)
+        ctx = [Triple(pre, triple.command.body, try_completion),
+               Triple(State.UNKNOWN, triple.command.body, except_completion)]
         if triple.command.orelse:
-            else_completion = complete_triple_cot(Triple(try_completion, triple.command.orelse, State.UNKNOWN))
+            else_completion = complete_triple_cot(Triple(try_completion, triple.command.orelse, State.UNKNOWN), func_map)
             ctx.append(Triple(pre, triple.command.orelse, else_completion))
         if triple.command.finalbody:
-            finally_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.finalbody, State.UNKNOWN))
+            finally_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.finalbody, State.UNKNOWN), func_map)
             ctx.append(Triple(State.UNKNOWN, triple.command.orelse, finally_completion))
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.For):
         pre = triple.precondition
-        body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
+        body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN), func_map)
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.While):
         pre = triple.precondition
-        body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
+        body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN), func_map)
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.FunctionDef):
         pre = triple.precondition
-        body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
+        body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN), func_map)
         ctx = [Triple(pre, triple.command.body, body_completion)]
         return complete_triple(triple, ctx)
     if isinstance(triple.command, (ast.Import, ast.ImportFrom, ast.Assert)):
@@ -130,12 +147,19 @@ def complete_triple_cot(triple: Triple) -> str:
     raise ValueError(f"unsupported statement type: {triple.command} {pprint_cmd(triple.command)}")
 
 
-def analyze_code_with_precondition_non_cot(parsed_code, precondition: str) -> str:
-    triple = Triple(precondition, parsed_code, State.UNKNOWN)
+def analyze_code_with_precondition(parsed_code, precondition: str) -> str:
+    triple = Triple(precondition, parsed_code.body, State.UNKNOWN)
     postcondition = complete_triple(triple)
     return postcondition
 
-def analyze_code_with_precondition_cot(parsed_code, precondition: str) -> str:
-    triple = Triple(precondition, parsed_code, State.UNKNOWN)
-    postcondition = complete_triple_cot(triple)
+
+def analyze_code_with_precondition_hoarecot(parsed_code, precondition: str) -> str:
+    visitor = FunctionDefVisitor()
+    visitor.visit(parsed_code)
+    func_map = visitor.get_func_defs_map()
+    main_function = func_map["func"]
+
+    triple = Triple(precondition, main_function, State.UNKNOWN)
+
+    postcondition = complete_triple_cot(triple, func_map)
     return postcondition

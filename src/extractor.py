@@ -39,13 +39,39 @@ def extract_correctness_from_response(response_content: str) -> str:
     return response_content
 
 
-def replace_function_name(code: str) -> str:
+def extract_function_name_from_test_case(test_case: str) -> str:
+    match = re.search(r'assert\s+(\w+)\s*\(', test_case)
+    if match:
+        return match.group(1)
+    else:
+        return test_case
+
+
+def replace_function_name(code: str, main_func_name: str) -> str:
+    code = code.replace('\\_', '_')
+
     pattern = r'\bdef\s+(\w+)\s*\('
     matches = re.findall(pattern, code)
 
+    if len(matches) == 1:
+        only_func_name = matches[0]
+        code = re.sub(rf'\b{only_func_name}\b', 'func', code)
+        return code
+
     func_map = {}
-    for i, func_name in enumerate(matches):
-        func_map[func_name] = f'func{i + 1 if i != 0 else ""}'
+    counter = 1
+    main_name_found = False
+    for func_name in matches:
+        if func_name == main_func_name:
+            func_map[func_name] = 'func'
+            main_name_found = True
+        else:
+            func_map[func_name] = f'func{counter}'
+            counter += 1
+
+    if not main_name_found:
+        last_func_name = matches[-1]
+        func_map[last_func_name] = 'func'
 
     # Replace all function definitions with new names
     def replace_func(match):

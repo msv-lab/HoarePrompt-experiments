@@ -4,11 +4,11 @@ from math import sqrt
 import csv
 import os
 
-from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot, chat_with_groq
+from complete import analyze_code_with_precondition, analyze_code_with_precondition_hoarecot, chat_with_groq
 from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
 from file_io import load_json
 from logger_setup import logger_setup
-from extractor import extract_correctness_from_response, replace_function_name
+from extractor import extract_correctness_from_response, replace_function_name, extract_function_name_from_test_case
 
 DATA_FILE = 'data/mixtral_20240630(complex).json'
 MODEL = "mixtral-8x7b-32768"
@@ -80,7 +80,7 @@ def main(data, logger):
     columns = [
         "Task ID", "Specification", "Code", "Test Result",
         "COT Correctness", "non-COT Correctness", "No Explanation Correctness",
-        "COT Response", "non-COT Response", "No Explanation Response"
+        "COT Post", "non-COT Post", "COT Response", "non-COT Response", "No Explanation Response"
     ]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
@@ -92,32 +92,35 @@ def main(data, logger):
         specification = task_data["specification"]
         precondition = task_data["precondition"]
         code = task_data["code"]
-        replaced_code = replace_function_name(code)
+        main_function_name = extract_function_name_from_test_case(task_data["test_list"][0])
+        replaced_code = replace_function_name(code, main_function_name)
         test_result = task_data["test_result"] == 1
 
         logger.debug(f"Start Task {task_id}")
+        logger.debug(f"Main function: {main_function_name}")
 
         # if connot parse, skip this task
         try:
-            parsed_code = ast.parse(replaced_code).body
+            parsed_code = ast.parse(replaced_code)
         except Exception as e:
             logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
             continue
 
-        try:
-            # get cot and non-cot postcondition
-            non_cot_explanation = analyze_code_with_precondition_non_cot(parsed_code, precondition)
-            cot_explanation = analyze_code_with_precondition_cot(parsed_code, precondition)
+        # try:
+        # get cot and non-cot postcondition
+        non_cot_explanation = analyze_code_with_precondition(parsed_code, precondition)
+        cot_explanation = analyze_code_with_precondition_hoarecot(parsed_code, precondition)
 
-            # use postcondition to analyse code correctness
-            total += 1
-            cot_correctness_str, cot_response = check_program(specification, replaced_code, cot_explanation)
-            non_cot_correctness_str, non_cot_response = check_program(specification, replaced_code, non_cot_explanation)
-            no_explanation_correctness_str, no_explanation_response = check_program(specification, code)
-        except Exception as e:
-            logger.error(f"Error: {e}")
-            break
+        # use postcondition to analyse code correctness
+        total += 1
+        cot_correctness_str, cot_response = check_program(specification, replaced_code, cot_explanation)
+        non_cot_correctness_str, non_cot_response = check_program(specification, replaced_code, non_cot_explanation)
+        no_explanation_correctness_str, no_explanation_response = check_program(specification, replaced_code)
+        # except Exception as e:
+        #     logger.error(f"Error: {e}")
+        #     break
 
+        # TODO: log more special cases. not only extract correctness
         # if connot extract correctness, add a warning to logger. Need to manually fix it after finish.
         if cot_correctness_str not in ["True", "False"]:
             logger.warning(f"Unexpected correctness value for COT. Task ID: {task_id}")
@@ -177,6 +180,8 @@ def main(data, logger):
             "COT Correctness": cot_correctness_str,
             "non-COT Correctness": non_cot_correctness_str,
             "No Explanation Correctness": no_explanation_correctness_str,
+            "COT Post": cot_explanation,
+            "non-COT Post": non_cot_explanation,
             "COT Response": cot_response,
             "non-COT Response": non_cot_response,
             "No Explanation Response": no_explanation_response
@@ -200,7 +205,8 @@ def main(data, logger):
 
     logger.info(f"CoT Confusion Matrix: tp-{tp_cot}, fp-{fp_cot}, fn-{fn_cot}, tn-{tn_cot}")
     logger.info(f"non-CoT Confusion Matrix: tp-{tp_non_cot}, fp-{fp_non_cot}, fn-{fn_non_cot}, tn-{tn_non_cot}")
-    logger.info(f"No Explanation Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
+    logger.info(
+        f"No Explanation Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
     logger.info(f"CoT MCC: {mcc_cot}")
     logger.info(f"non-CoT MCC: {mcc_non_cot}")
     logger.info(f"No Explanation MCC: {mcc_no_explanation}")

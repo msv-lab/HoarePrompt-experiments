@@ -44,6 +44,70 @@ PRECONDITION_EXTRACTION_PROMPT = [{'role': 'system',
                                   {'role': 'assistant',
                                    'content': 'Precondition: **n is a non-negative integer.**'}]
 
+AUX_PRECONDITION_EXTRACTION_PROMPT = [
+    {'role': 'system',
+     'content': 'You are assigned the role of a program verifier, responsible for extracting the precondition from the calling context described in natural language and the corresponding called Python function code. You need to infer the precondition of the function by combining the context and the Python function code.'},
+    {'role': 'user', 'name': 'example_user',
+     'content': '''Context: n is an integer.
+Caller: is_prime(n)
+Callee:
+```
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+    for i in range(3, int(n ** 0.5) + 1, 2):
+        if n % i == 0:
+            return False
+    return True
+```
+'''},
+    {'role': 'assistant',
+     'content': 'Precondition: **m is an integer.**'},
+    {'role': 'user', 'name': 'example_user',
+     'content': '''Context: n is an integer greater than or equal to 0. memo is a list of length n+1, initialized with -1
+Caller: count_ways_util(n, memo)
+Collee:
+```
+def count_ways_util(n, memo):
+    if n == 0:
+        return 1
+    if n == 1:
+        return 0
+    if n == 2:
+        return 3
+    if memo[n] != -1:
+        return memo[n]
+    
+    memo[n] = 3 * count_ways_util(n - 2, memo)
+    for i in range(4, n + 1, 2):
+        memo[n] += 2 * count_ways_util(n - i, memo)
+    
+    return memo[n]
+```
+'''},
+    {'role': 'assistant',
+     'content': 'Precondition: **n is an integer greater than or equal to 0. memo is a list of length n+1, initialized with -1**'},
+    {'role': 'user', 'name': 'example_user',
+     'content': '''Context: x and y are integers. xor is an integer; xor has the value of the bitwise XOR operation between x and y.
+Caller: count_set_bits(xor)
+Collee:
+```
+def count_set_bits(n):
+    count = 0
+    while n > 0:
+        count += n & 1
+        n >>= 1
+    return count
+```
+'''},
+    {'role': 'assistant',
+     'content': 'Precondition: **n is an integer.**'},
+]
+
 CHECK_CODE_PROMPT_WITH_EXPLANATION = [{'role': 'system',
                                        'content': 'You have been assigned the role of a program verifier. Your task is to determine the correctness of a given Python program based on the provided natural language specification and explanation. If the program meets the specification, provide "True" as the Correctness; otherwise, provide "False". Partially correct programs should be considered incorrect.'},
                                       {'role': 'user', 'name': 'example_user',
@@ -83,4 +147,3 @@ CHECK_CODE_PROMPT = [{'role': 'system',
                      {'role': 'assistant',
                       'content': 'Correctness: **False**.'},
                      ]
-
