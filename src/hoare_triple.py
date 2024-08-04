@@ -8,13 +8,14 @@ class State(Enum):
     TOP = auto()
     BOTTOM = auto()
     UNKNOWN = auto()
+    NEW = auto()
 
 
 def print_state(s):
     if s == State.UNKNOWN:
         return "the state is unknown"
     if s == State.TOP:
-        return "variables can hold any values"
+        return "A new code block has started. External variables can hold any values."
     if s == State.BOTTOM:
         return "the state is unreachable"
     return s
@@ -31,6 +32,21 @@ class Triple:
 
     def with_postcondition(self, pc):
         return Triple(self.precondition, self.command, pc)
+
+@dataclass
+class IfTriple:
+    precondition: str
+    command: ast.AST
+    if_postcondition: str
+    else_postcondition: str
+    postcondition: str
+
+@dataclass
+class WhileTriple:
+    precondition: str
+    command: ast.AST
+    body_postcondition: str
+    postcondition: str
 
 
 def parse_stmt(source):

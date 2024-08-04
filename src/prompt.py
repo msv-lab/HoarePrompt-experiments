@@ -4,7 +4,24 @@ Precondition: describes the initial state of the program variables before the ex
 
 Program Fragment: This is a given part of the task and is not something you need to create or modify.
 
-Postcondition: describes the state of the program variables after the execution of the program fragment with the initial state described in the precondition. This description should include both the values of the variables and the relationships between them. Similar to the precondition, avoid explaining how the program operates; concentrate solely on the variable values and their interrelations."""
+Postcondition: describes the state of the program variables after the execution of the program fragment with the initial state described in the precondition. This description should include both the values of the variables and the relationships between them. Similar to the precondition, avoid explaining how the program operates; concentrate solely on the variable values and their interrelations. Ensure that the postcondition retains the conditions stated in the precondition."""
+
+VERIFYER_SYSTEM_PROMPT_IF = """You are assigned the role of a program verifier, responsible for completing the overall postcondition of Hoare triples for if statements based on the conditions in the program fragment. In addition to the Hoare triples, you will also see the postconditions for the if and else parts, and if there is an elif part, it will be described in the else postcondition. Each Hoare triple is made up of three components: a precondition, a program fragment, and a postcondition. The precondition and the postcondition are expressed in natural language.
+
+Precondition: describes the initial state of the program variables before the execution of the program fragment. This description should only include the values of the variables, without detailing the operational aspects of the program.
+
+Program Fragment: This is a given part of the task and is not something you need to create or modify.
+
+Postcondition: describes the state of the program variables after the execution of the program fragment with the initial state described in the precondition. This description should include both the values of the variables and the relationships between them. Similar to the precondition, avoid explaining how the program operates; concentrate solely on the variable values and their interrelations. Ensure that the postcondition retains the conditions stated in the precondition."""
+
+VERIFYER_SYSTEM_PROMPT_LOOP = """You are assigned the role of a program verifier, responsible for completing the overall Hoare triples for loop statements. In addition to the Hoare triples, you will also see the postcondition of the loop body. You need to combine the precondition, the code, and the postcondition of the loop body to infer the overall postcondition of the loop. Each Hoare triple is made up of three components: a precondition, a program fragment, and a postcondition. The precondition and the postcondition are expressed in natural language. The postcondition of the loop body records how the loop body code changes the state of the variables in a single iteration.
+
+Precondition: describes the initial state of the program variables before the execution of the program fragment. This description should only include the values of the variables, without detailing the operational aspects of the program.
+
+Program Fragment: This is a given part of the task and is not something you need to create or modify. If the loop is a for loop, new variables may appear. If the loop is a while loop, and the condition correctness needs to be determined, you need to discuss both entering and not entering the loop.
+
+Postcondition: describes the state of the program variables after the execution of the program fragment with the initial state described in the precondition. This description should include both the values of the variables and the relationships between them. Similar to the precondition, avoid explaining how the program operates; concentrate solely on the variable values and their interrelations. Ensure that the postcondition retains the conditions stated in the precondition."""
+
 
 CODE_GEN_PROMPT = [{'role': 'system',
                     'content': 'You are assigned the role of a Python programmer. Your task is to write the corresponding Python program based on the given natural language specifications and test case.'},

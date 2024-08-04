@@ -60,3 +60,8 @@ def replace_function_name(code: str) -> str:
         replaced_code = re.sub(call_pattern, new_name, replaced_code)
 
     return replaced_code
+
+def count_function_defs(code: str) -> int:
+    pattern = r'\bdef\s+\w+\s*\('
+    matches = re.findall(pattern, code)
+    return len(matches)

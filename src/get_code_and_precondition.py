@@ -36,7 +36,8 @@ def gen_code(task):
         "total_tests": total_tests,
         "passed_tests": passed_tests,
         "test_result": test_result,
-        "task_id": task_id
+        "task_id": task_id,
+        "test_list": task['test_list']
     }
     return result
 

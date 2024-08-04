@@ -8,7 +8,7 @@ from complete import analyze_code_with_precondition_non_cot, analyze_code_with_p
 from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
 from file_io import load_json
 from logger_setup import logger_setup
-from extractor import extract_correctness_from_response, replace_function_name
+from extractor import extract_correctness_from_response, replace_function_name, count_function_defs
 
 DATA_FILE = 'data/mixtral_20240630(complex).json'
 MODEL = "mixtral-8x7b-32768"
@@ -79,8 +79,8 @@ def main(data, logger):
     # CSV logger header
     columns = [
         "Task ID", "Specification", "Code", "Test Result",
-        "COT Correctness", "non-COT Correctness", "No Explanation Correctness",
-        "COT Response", "non-COT Response", "No Explanation Response"
+        "HoareCoT Correctness", "CoT Correctness", "No Explanation Correctness", "HoareCoT Post", "CoT Post",
+        "HoareCoT Response", "CoT Response", "No Explanation Response"
     ]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
@@ -104,16 +104,20 @@ def main(data, logger):
             logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
             continue
 
+        if count_function_defs(code) > 1:
+            logger.debug(f"Task {task_id} skip due to mult functions.\n\n\n")
+            continue
+
         try:
             # get cot and non-cot postcondition
-            non_cot_explanation = analyze_code_with_precondition_non_cot(parsed_code, precondition)
-            cot_explanation = analyze_code_with_precondition_cot(parsed_code, precondition)
+            cot_post = analyze_code_with_precondition_non_cot(parsed_code, precondition)
+            hoare_cot_post = analyze_code_with_precondition_cot(parsed_code, precondition)
 
             # use postcondition to analyse code correctness
             total += 1
-            cot_correctness_str, cot_response = check_program(specification, replaced_code, cot_explanation)
-            non_cot_correctness_str, non_cot_response = check_program(specification, replaced_code, non_cot_explanation)
-            no_explanation_correctness_str, no_explanation_response = check_program(specification, code)
+            cot_correctness_str, hoare_cot_response = check_program(specification, replaced_code, hoare_cot_post)
+            non_cot_correctness_str, cot_response = check_program(specification, replaced_code, cot_post)
+            no_explanation_correctness_str, no_explanation_response = check_program(specification, replaced_code)
         except Exception as e:
             logger.error(f"Error: {e}")
             break
@@ -130,21 +134,21 @@ def main(data, logger):
                 f"Unexpected correctness value for no explanation. Task ID: {task_id}")
             no_explanation_correctness_str = "False"
 
-        cot_correctness_bool = cot_correctness_str == "True"
-        non_cot_correctness_bool = non_cot_correctness_str == "True"
+        hoare_cot_correctness_bool = cot_correctness_str == "True"
+        cot_correctness_bool = non_cot_correctness_str == "True"
         no_explanation_correctness_bool = no_explanation_correctness_str == "True"
 
         # update variables
-        if cot_correctness_bool == test_result:
+        if hoare_cot_correctness_bool == test_result:
             cot_correct += 1
-        if non_cot_correctness_bool == test_result:
+        if cot_correctness_bool == test_result:
             non_cot_correct += 1
         if no_explanation_correctness_bool == test_result:
             no_explanation_correct += 1
 
-        tp_cot, tn_cot, fp_cot, fn_cot = update_metrics(cot_correctness_bool, test_result, tp_cot, tn_cot, fp_cot,
+        tp_cot, tn_cot, fp_cot, fn_cot = update_metrics(hoare_cot_correctness_bool, test_result, tp_cot, tn_cot, fp_cot,
                                                         fn_cot)
-        tp_non_cot, tn_non_cot, fp_non_cot, fn_non_cot = update_metrics(non_cot_correctness_bool, test_result,
+        tp_non_cot, tn_non_cot, fp_non_cot, fn_non_cot = update_metrics(cot_correctness_bool, test_result,
                                                                         tp_non_cot, tn_non_cot, fp_non_cot, fn_non_cot)
         tp_no_explanation, tn_no_explanation, fp_no_explanation, fn_no_explanation = update_metrics(
             no_explanation_correctness_bool, test_result, tp_no_explanation, tn_no_explanation, fp_no_explanation,
@@ -154,13 +158,13 @@ def main(data, logger):
         logger.debug(f"Specification: {specification}")
         logger.debug(f"Code:\n{code}")
         logger.debug(f"Test Pass Rate {task_data['test_result']}")
-        logger.debug(f"CoT Postcondition: {cot_explanation}")
-        logger.debug(f"non-CoT Postcondition: {non_cot_explanation}")
-        logger.debug(f"CoT Correctness: {cot_correctness_bool}")
-        logger.debug(f"non-CoT Correctness: {non_cot_correctness_bool}")
+        logger.debug(f"CoT Postcondition: {hoare_cot_post}")
+        logger.debug(f"non-CoT Postcondition: {cot_post}")
+        logger.debug(f"CoT Correctness: {hoare_cot_correctness_bool}")
+        logger.debug(f"non-CoT Correctness: {cot_correctness_bool}")
         logger.debug(f"No Explanation Correctness: {no_explanation_correctness_bool}")
-        logger.debug(f"CoT Response: {cot_response}")
-        logger.debug(f"non-CoT Response: {non_cot_response}")
+        logger.debug(f"CoT Response: {hoare_cot_response}")
+        logger.debug(f"non-CoT Response: {cot_response}")
         logger.debug(f"No Explanation Response: {no_explanation_response}\n")
 
         logger.debug(f"Total Test: {total}")
@@ -174,11 +178,13 @@ def main(data, logger):
             "Specification": specification,
             "Code": code,
             "Test Result": test_result,
-            "COT Correctness": cot_correctness_str,
-            "non-COT Correctness": non_cot_correctness_str,
+            "HoareCoT Correctness": cot_correctness_str,
+            "CoT Correctness": non_cot_correctness_str,
             "No Explanation Correctness": no_explanation_correctness_str,
-            "COT Response": cot_response,
-            "non-COT Response": non_cot_response,
+            "HoareCoT Post": hoare_cot_post,
+            "CoT Post": cot_post,
+            "HoareCoT Response": hoare_cot_response,
+            "CoT Response": cot_response,
             "No Explanation Response": no_explanation_response
         }
 
@@ -200,7 +206,8 @@ def main(data, logger):
 
     logger.info(f"CoT Confusion Matrix: tp-{tp_cot}, fp-{fp_cot}, fn-{fn_cot}, tn-{tn_cot}")
     logger.info(f"non-CoT Confusion Matrix: tp-{tp_non_cot}, fp-{fp_non_cot}, fn-{fn_non_cot}, tn-{tn_non_cot}")
-    logger.info(f"No Explanation Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
+    logger.info(
+        f"No Explanation Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
     logger.info(f"CoT MCC: {mcc_cot}")
     logger.info(f"non-CoT MCC: {mcc_non_cot}")
     logger.info(f"No Explanation MCC: {mcc_no_explanation}")
