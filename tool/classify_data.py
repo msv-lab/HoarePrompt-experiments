@@ -16,17 +16,17 @@ def classify_data(date):
 
     df = pd.read_csv(input_file_path)
 
-    required_columns = ['Test Result', 'COT Correctness', 'non-COT Correctness', 'No Explanation Correctness']
+    required_columns = ['Test Result', 'HoareCoT Correctness', 'CoT Correctness', 'No Explanation Correctness']
     for col in required_columns:
         if col not in df.columns:
             raise ValueError(f"Input file must contain the column: {col}")
 
     non_cot_correct = df[
-        (df['COT Correctness'] != df['Test Result']) & (df['non-COT Correctness'] == df['Test Result'])]
+        (df['HoareCoT Correctness'] != df['Test Result']) & (df['CoT Correctness'] == df['Test Result'])]
     no_explanation_correct = df[
-        (df['COT Correctness'] != df['Test Result']) & (df['No Explanation Correctness'] == df['Test Result'])]
+        (df['HoareCoT Correctness'] != df['Test Result']) & (df['No Explanation Correctness'] == df['Test Result'])]
 
-    non_cot_correct_file = os.path.join(folder_path, f'non_cot_correct.csv')
+    non_cot_correct_file = os.path.join(folder_path, f'cot_correct.csv')
     no_explanation_correct_file = os.path.join(folder_path, f'no_explanation_correct.csv')
 
     non_cot_correct.to_csv(non_cot_correct_file, index=False)

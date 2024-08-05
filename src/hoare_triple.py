@@ -15,7 +15,7 @@ def print_state(s):
     if s == State.UNKNOWN:
         return "the state is unknown"
     if s == State.TOP:
-        return "A new code block has started. External variables can hold any values."
+        return "variables can hold any values"
     if s == State.BOTTOM:
         return "the state is unreachable"
     return s
@@ -41,12 +41,19 @@ class IfTriple:
     else_postcondition: str
     postcondition: str
 
+    def __str__(self):
+        return f"{{ {print_state(self.precondition)} }}\n{pprint_cmd(self.command)}\nIf Post: {self.if_postcondition}\nElse Post: {'there is no else part in the code' if self.else_postcondition is None else self.else_postcondition}\n{{ {print_state(self.postcondition)} }}"
+
+
 @dataclass
-class WhileTriple:
+class LoopTriple:
     precondition: str
     command: ast.AST
     body_postcondition: str
     postcondition: str
+
+    def __str__(self):
+        return f"{{ {print_state(self.precondition)} }}\n{pprint_cmd(self.command)}\nBody Post: {self.body_postcondition}\n{{ {print_state(self.postcondition)} }}"
 
 
 def parse_stmt(source):
