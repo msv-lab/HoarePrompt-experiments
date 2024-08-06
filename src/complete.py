@@ -17,29 +17,30 @@ MODEL = "mixtral-8x7b-32768"
 
 generic_ctx = [
     Triple(
-        State.TOP,
+        "`str` is a string",
         parse_stmt("n = int(input())"),
-        "n is an input integer"),
-    Triple(
-        "n is either 3 or 5",
-        parse_stmt("m = n + 1"),
-        "n is either 3 or 5; m is either 4 or 6"),
-    Triple(
-        "x is greater than zero",
-        parse_stmt("x = x + 1"),
-        "x greater than one"),
-    Triple(
-        "i is integer",
-        parse_stmt("i += 1"),
-        "i is integer and i is increased by 1"),
+        "`str` is a string, `n` is an input integer"),
     Triple(
         State.TOP,
-        parse_stmt("raise ValueError('An error occurred')"),
-        "ValueError is raised"),
+        parse_stmt("i += 1"),
+        "variable `i` is increased by 1"
+    ),
     Triple(
-        "x is odd number, y is positive float",
-        parse_stmt("break"),
-        "x is odd number, y is positive float, loop is break"),
+        "`n` is either 3 or 5",
+        parse_stmt("m = n + 1"),
+        "`n` is either 3 or 5; `m` is either 4 or 6"),
+    Triple(
+        State.TOP,
+        parse_stmt("return True"),
+        "The function return True"),
+    Triple(
+        "`i` is integer",
+        parse_stmt("j += len(str1)"),
+        "`i` is integer and `j` is the length of str1"),
+    Triple(
+        "`n` is a positive integer",
+        parse_stmt("memo = [-1] * (n + 1)"),
+        "`n` is a positive integer, `memo` is a list of length n+1 with all initial values set to -1."),
 ]
 
 
@@ -76,7 +77,7 @@ else:
         "The function return True",
         "x is a positive integer, if x is less then 2, the function return False. Otherwise, the function return True"),
     IfTriple(
-        "`m` is 0, `n` is an integer",
+        "`m` is integer, `n` is an integer",
         parse_stmt('''
 if n < 0:
     n = -n
@@ -87,9 +88,9 @@ else:
     n -= 13
     m += 1
     '''),
-        "The variable `n` is updated to its negation.",
-        "If `n` is 0, the function returns 0. Otherwise, `n` has been decreased by 13 and `m` is increased by 1.",
-        "`n` is an integer. If n < 0, `m` is 1 and `n` is negated. If n == 0, the function returns `m` which is 0. Otherwise, `n` is decreased by 13 and `m` is 1."),
+        "the integer `n` is updated to its negation. Integer `m` is increased by 1",
+        "If integer `n` is 0, the function returns 0. Otherwise, `n` has been decreased by 13 and integer `m` is increased by 1.",
+        "`m`, `n` are integers. If n < 0, `m` is increased by 1 and `n` is negated. If n == 0, the function returns `m`. Otherwise, `n` is decreased by 13 and `m` is increased by 1."),
 ]
 
 
@@ -144,7 +145,7 @@ for num in numbers:
         even_numbers.append(num)
         """),
         "If `num` is even, it is appended to list `even_numbers`.",
-        "The iteration variable `num` traverses all integers in `numbers`. At the end of the loop, the `even_numbers` list contains all even numbers from `numbers` in their original order, and `numbers` remains unchanged. The iteration variable `num` is the last element of `numbers`."
+        "The iteration variable `num` traverses all integers in `numbers`. If in any iteration, `num` is even number, it appends to `even_numbers`. At the end of the loop, the `even_numbers` list contains all even numbers from `numbers` in their original order, and `numbers` remains unchanged. The iteration variable `num` is the last element of `numbers`."
     ),
     LoopTriple(
         "`n` is an integer.",
@@ -154,7 +155,7 @@ for i in range(2, int(math.sqrt(n)) + 1):
         return True
         """),
         "If `n` divided by `i` has a remainder of 0, the function returns True.",
-        "The iteration variable `i` ranges from 2 to the ceiling of the square root of n, incrementing by 1. If `n` is divisible by any `i`, indicating `n` is not prime, the function returns True. The integer `n` remains unchanged. If the loop completes without returning, the iteration variable `i` is the ceiling of the square root of `n`."
+        "The iteration variable `i` ranges from 2 to the ceiling of the square root of n, incrementing by 1. If `n` is divisible by `i` in any iteration, indicating `n` is not prime, the function returns True. The integer `n` remains unchanged. If the loop completes without returning, the iteration variable `i` is the ceiling of the square root of `n`."
     ),
 ]
 
@@ -250,7 +251,7 @@ def complete_triple_cot(triple: Triple) -> str:
             pre = completion
         return pre
     if isinstance(triple.command, ast.If):
-        pre = State.TOP
+        pre = triple.precondition
         then_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         if_post = then_completion
 
@@ -259,7 +260,7 @@ def complete_triple_cot(triple: Triple) -> str:
             else_completion = complete_triple_cot(Triple(pre, triple.command.orelse, State.UNKNOWN))
             else_post = else_completion
 
-        if_triple = IfTriple(triple.precondition, triple.command, if_post, else_post, State.UNKNOWN)
+        if_triple = IfTriple(pre, triple.command, if_post, else_post, State.UNKNOWN)
         return complete_if_triple(if_triple)
     if isinstance(triple.command, ast.Try):
         pre = triple.precondition
