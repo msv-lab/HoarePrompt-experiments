@@ -25,6 +25,7 @@ def extract_precondition_from_response(response_content):
             return match.group(1).strip()
         elif match.group(2):
             return match.group(2).strip()
+    print("WARNING: Fail to extract precondition")
     return response_content
 
 

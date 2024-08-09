@@ -4,14 +4,7 @@ import argparse
 
 
 def classify_data(date):
-    base_path = os.path.join('logs',date)
-
-    subfolders = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
-    if len(subfolders) != 1:
-        raise ValueError(f"Expected exactly one subfolder in {base_path}, but found {len(subfolders)}")
-
-    unique_folder = subfolders[0]
-    folder_path = os.path.join(base_path, unique_folder)
+    folder_path = os.path.join('logs',date)
     input_file_path = os.path.join(folder_path, f'{date}.csv')
 
     df = pd.read_csv(input_file_path)

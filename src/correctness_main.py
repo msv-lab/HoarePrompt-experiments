@@ -125,14 +125,11 @@ def main(data, logger):
         # if connot extract correctness, add a warning to logger. Need to manually fix it after finish.
         if cot_correctness_str not in ["True", "False"]:
             logger.warning(f"Unexpected correctness value for COT. Task ID: {task_id}")
-            cot_correctness_str = "False"
         if non_cot_correctness_str not in ["True", "False"]:
             logger.warning(f"Unexpected correctness value for non-COT. Task ID: {task_id}")
-            non_cot_correctness_str = "False"
         if no_explanation_correctness_str not in ["True", "False"]:
             logger.warning(
                 f"Unexpected correctness value for no explanation. Task ID: {task_id}")
-            no_explanation_correctness_str = "False"
 
         hoare_cot_correctness_bool = cot_correctness_str == "True"
         cot_correctness_bool = non_cot_correctness_str == "True"
@@ -158,18 +155,18 @@ def main(data, logger):
         logger.debug(f"Specification: {specification}")
         logger.debug(f"Code:\n{code}")
         logger.debug(f"Test Pass Rate {task_data['test_result']}")
-        logger.debug(f"CoT Postcondition: {hoare_cot_post}")
-        logger.debug(f"non-CoT Postcondition: {cot_post}")
-        logger.debug(f"CoT Correctness: {hoare_cot_correctness_bool}")
-        logger.debug(f"non-CoT Correctness: {cot_correctness_bool}")
+        logger.debug(f"HoareCoT Postcondition: {hoare_cot_post}")
+        logger.debug(f"CoT Postcondition: {cot_post}")
+        logger.debug(f"HoareCoTCoT Correctness: {hoare_cot_correctness_bool}")
+        logger.debug(f"CoT Correctness: {cot_correctness_bool}")
         logger.debug(f"No Explanation Correctness: {no_explanation_correctness_bool}")
-        logger.debug(f"CoT Response: {hoare_cot_response}")
-        logger.debug(f"non-CoT Response: {cot_response}")
+        logger.debug(f"HoareCoTCoT Response: {hoare_cot_response}")
+        logger.debug(f"CoT Response: {cot_response}")
         logger.debug(f"No Explanation Response: {no_explanation_response}\n")
 
         logger.debug(f"Total Test: {total}")
-        logger.debug(f"CoT Total Correct: {cot_correct}")
-        logger.debug(f"non-CoT Total Correct: {non_cot_correct}")
+        logger.debug(f"HoareCoTCoT Total Correct: {cot_correct}")
+        logger.debug(f"CoT Total Correct: {non_cot_correct}")
         logger.debug(f"No Explanation Total Correct: {no_explanation_correct}\n\n\n")
 
         # write to csv logger

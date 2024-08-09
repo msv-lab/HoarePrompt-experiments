@@ -56,6 +56,16 @@ class LoopTriple:
         return f"{{ {print_state(self.precondition)} }}\n{pprint_cmd(self.command)}\nBody Post: {self.body_postcondition}\n{{ {print_state(self.postcondition)} }}"
 
 
+@dataclass
+class FuncTriple:
+    precondition: str
+    command: ast.AST
+    body_postcondition: str
+    postcondition: str
+
+    def __str__(self):
+        return f"{{ {print_state(self.precondition)} }}\n{pprint_cmd(self.command)}\nBody Post: {self.body_postcondition}\n{{ {print_state(self.postcondition)} }}"
+
 def parse_stmt(source):
     return ast.parse(source).body[0]
 

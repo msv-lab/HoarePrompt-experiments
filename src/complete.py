@@ -4,16 +4,14 @@ from groq import Groq
 import openai
 import ast
 
-from hoare_triple import State, Triple, IfTriple, LoopTriple, parse_stmt, pprint_cmd, print_state
-from prompt import VERIFYER_SYSTEM_PROMPT, VERIFYER_SYSTEM_PROMPT_IF, VERIFYER_SYSTEM_PROMPT_LOOP
-from extractor import extract_postcondition
+from hoare_triple import State, Triple, IfTriple, LoopTriple, FuncTriple, parse_stmt, pprint_cmd, print_state
+from prompt import VERIFYER_SYSTEM_PROMPT, VERIFYER_SYSTEM_PROMPT_IF, VERIFYER_SYSTEM_PROMPT_LOOP, GENERALIZE_PRECONDITION_PROMPT
+from extractor import extract_postcondition, extract_precondition_from_response
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+client = Groq(api_key=os.environ.get("GROQ_API_KEY1"))
 
 DEFAULT_TEMPERATURE = 0.7
 MODEL = "mixtral-8x7b-32768"
-# MODEL = "gpt-3.5-turbo-0125"
 
 generic_ctx = [
     Triple(
@@ -29,10 +27,6 @@ generic_ctx = [
         "`n` is either 3 or 5",
         parse_stmt("m = n + 1"),
         "`n` is either 3 or 5; `m` is either 4 or 6"),
-    Triple(
-        State.TOP,
-        parse_stmt("return True"),
-        "The function return True"),
     Triple(
         "`i` is integer",
         parse_stmt("j += len(str1)"),
@@ -53,7 +47,8 @@ if len(str) < 3:
     '''),
         "the function returns None",
         "there is no else part in the code",
-        "`str` is a string, if the length of `str` is less then 3, the function return None"),
+        "`str` is a string, if the length of `str` is less then 3, the function return None"
+    ),
     IfTriple(
         State.TOP,
         parse_stmt('''
@@ -64,7 +59,8 @@ else:
     '''),
         "The function returns `n`",
         "The function returns `int(n)`",
-        "if `n` is integer, then the function returns `n` itself. Otherwise, the function return `int(n)`"),
+        "if `n` is integer, then the function returns `n` itself. Otherwise, the function return `int(n)`"
+    ),
     IfTriple(
         "`x` is an positive integer",
         parse_stmt('''
@@ -75,7 +71,8 @@ else:
     '''),
         "The function return False",
         "The function return True",
-        "x is a positive integer, if x is less then 2, the function return False. Otherwise, the function return True"),
+        "x is a positive integer, if x is less then 2, the function return False. Otherwise, the function return True"
+    ),
     IfTriple(
         "`m` is integer, `n` is an integer",
         parse_stmt('''
@@ -90,7 +87,21 @@ else:
     '''),
         "the integer `n` is updated to its negation. Integer `m` is increased by 1",
         "If integer `n` is 0, the function returns 0. Otherwise, `n` has been decreased by 13 and integer `m` is increased by 1.",
-        "`m`, `n` are integers. If n < 0, `m` is increased by 1 and `n` is negated. If n == 0, the function returns `m`. Otherwise, `n` is decreased by 13 and `m` is increased by 1."),
+        "`m`, `n` are integers. If n < 0, `m` is increased by 1 and `n` is negated. If n == 0, the function returns `m`. Otherwise, `n` is decreased by 13 and `m` is increased by 1."
+    ),
+    IfTriple(
+        "x is an integer, y is zero.",
+        parse_stmt('''
+if x > 0:
+    if x > 10:
+        y = x * 2
+    else:
+        y = x + 5
+        '''),
+        "`x` is an integer. If `x` > 10, `y` is set to twice the value of `x`. Otherwise, `y` is set to the value of `x` plus 5.",
+        "there is no else part in the code",
+        "`x` is an integer. If `x` is greater than 0 and `x` is greater than 10, then `y` is set to twice the value of x. If `x` is greater than 0 but less than or equal to 10, then `y` is set to the value of x plus 5."
+    ),
 ]
 
 
@@ -123,7 +134,7 @@ while index >= 0:
         """),
         "`reversed_string` appends the character at index `index` of the variable `string`, and `index` is decremented by 1.",
         "`reversed_string` stores the reverse of `string`, `index` is -1, `string` remains unchanged."
-    )
+    ),
 ]
 
 
@@ -160,6 +171,42 @@ for i in range(2, int(math.sqrt(n)) + 1):
 ]
 
 
+generic_func_ctx = [
+    FuncTriple(
+        "`number` is an integer.",
+        parse_stmt('''
+def is_even(number):
+    if number % 2 == 0:
+        return True
+    return False
+        '''),
+        "`number` is an integer. If `number` is even, the function returns True; otherwise, it returns False.",
+        "The function `is_even` takes an integer parameter `number`. If the `number` is even, the function returns `True`; otherwise, it returns `False`."
+    ),
+    FuncTriple(
+        "`celsius` is a float",
+        parse_stmt('''
+def celsius_to_fahrenheit(celsius):
+    return (celsius * 9/5) + 32
+        '''),
+        "The function returns (`celsius` * 9/5) + 32",
+        "The function takes a floating-point parameter `celsius` and, in all cases, returns `(celsius * 9/5) + 32`."
+    ),
+    FuncTriple(
+        "`strings` is a list of string and `char` is a character",
+        parse_stmt('''
+def find_first_string_with_char(strings, char):
+    for s in strings:
+        if char in s:
+            return s
+    return None
+        '''),
+        "The iteration variable `s` traverses each string in the list `strings`. During any iteration, if the character `char` is found in `s`, the function returns `s`. If no such `s` is found during the loop, then `s` is the last string in the list, the function returns `None`.",
+        "The function `find_first_string_with_char` takes two parameters: a list of strings, `strings`, and a character, `char`. The function iterates through each string in `strings`, and if `char` is found in a string, that string is returned and the function terminates. If `char` is not found in any of the strings, the function returns `None` after the loop completes."
+    ),
+]
+
+
 @retry(wait=wait_random_exponential(min=1, max=300), stop=stop_after_attempt(15))
 def chat_with_groq(**kwargs):
     return client.chat.completions.create(**kwargs)
@@ -180,9 +227,9 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx, example_numb
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
     response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
-    # print("+" * 50)
-    # print(incomplete_triple)
-    # print(f"Overall post: {post}")
+    print("+" * 50)
+    print(incomplete_triple)
+    print(f"LLM post: {post}")
     return post
 
 
@@ -196,7 +243,7 @@ def complete_if_triple(incomplete_triple, context_triples=generic_if_ctx):
     post = extract_postcondition(response.choices[0].message.content)
     print("*" * 50)
     print(incomplete_triple)
-    print(f"Overall post: {post}")
+    print(f"LLM post: {post}")
     return post
 
 def complete_while_triple(incomplete_triple, context_triples=generic_while_ctx):
@@ -209,8 +256,9 @@ def complete_while_triple(incomplete_triple, context_triples=generic_while_ctx):
     post = extract_postcondition(response.choices[0].message.content)
     print("*" * 50)
     print(incomplete_triple)
-    print(f"Overall post: {post}")
+    print(f"LLM post: {post}")
     return post
+
 
 def complete_for_triple(incomplete_triple, context_triples=generic_for_ctx):
     msgs = [{"role": "system", "content": VERIFYER_SYSTEM_PROMPT_LOOP}]
@@ -222,9 +270,34 @@ def complete_for_triple(incomplete_triple, context_triples=generic_for_ctx):
     post = extract_postcondition(response.choices[0].message.content)
     print("*" * 50)
     print(incomplete_triple)
-    print(post)
+    print(f"LLM post: {post}")
     return post
 
+def complete_func_triple(incomplete_triple, context_triples=generic_func_ctx):
+    msgs = [{"role": "system", "content": VERIFYER_SYSTEM_PROMPT_LOOP}]
+    for ctx in context_triples:
+        msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
+        msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
+    msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
+    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    post = extract_postcondition(response.choices[0].message.content)
+    print("*" * 50)
+    print(incomplete_triple)
+    print(f"LLM post: {post}")
+    return post
+
+def generalize_precondition(precondition: str) -> str:
+    user_message = {
+        "role": "user",
+        "name": "user",
+        "content": f"Old Precondition: **{precondition}**"
+    }
+    messages = GENERALIZE_PRECONDITION_PROMPT.copy()
+    messages.append(user_message)
+    response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+    model_answer = response.choices[0].message.content
+    precondition = extract_precondition_from_response(model_answer)
+    return precondition
 
 def format_prompt(triple) -> str:
     if isinstance(triple, Triple):
@@ -234,7 +307,11 @@ def format_prompt(triple) -> str:
         return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition for if: {triple.if_postcondition}\nPostcondition for else: {'there is no else part in the code' if triple.else_postcondition is None else triple.else_postcondition}"
 
     if isinstance(triple, LoopTriple):
-        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition loop body: {triple.body_postcondition}"
+        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition for loop body: {triple.body_postcondition}"
+
+    if isinstance(triple, FuncTriple):
+        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition for function body: {triple.body_postcondition}"
+
 
 def complete_triple_cot(triple: Triple) -> str:
     assert triple.postcondition == State.UNKNOWN
@@ -276,20 +353,20 @@ def complete_triple_cot(triple: Triple) -> str:
             ctx.append(Triple(State.UNKNOWN, triple.command.orelse, finally_completion))
         return complete_triple(triple, ctx)
     if isinstance(triple.command, ast.For):
-        pre = State.TOP
+        pre = generalize_precondition(triple.precondition)
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         while_triple = LoopTriple(triple.precondition, triple.command, body_completion, State.UNKNOWN)
         return complete_for_triple(while_triple)
     if isinstance(triple.command, ast.While):
-        pre = State.TOP
+        pre = generalize_precondition(triple.precondition)
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         while_triple = LoopTriple(triple.precondition, triple.command, body_completion, State.UNKNOWN)
         return complete_while_triple(while_triple)
     if isinstance(triple.command, ast.FunctionDef):
         pre = triple.precondition
         body_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
-        ctx = [Triple(pre, triple.command.body, body_completion)]
-        return complete_triple(triple, ctx)
+        func_triple = FuncTriple(triple.precondition, triple.command, body_completion, State.UNKNOWN)
+        return complete_func_triple(func_triple)
     if isinstance(triple.command, (ast.Import, ast.ImportFrom, ast.Assert)):
         return triple.precondition
     raise ValueError(f"unsupported statement type: {triple.command} {pprint_cmd(triple.command)}")
