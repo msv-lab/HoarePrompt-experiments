@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from complete import chat_with_groq
+from complete import chat_with_llm
 from prompt import CODE_GEN_PROMPT, PRECONDITION_EXTRACTION_PROMPT
 from executor import execute_tests, summary
 from extractor import extract_precondition_from_response, extract_code_from_response
@@ -24,7 +24,7 @@ def gen_code(task):
     messages.append(user_message)
 
     print(f"Processing task ID: {task_id}")
-    response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
     model_answer = response.choices[0].message.content
     generated_code = extract_code_from_response(model_answer)
     total_tests, passed_tests, _ = execute_tests(task, generated_code)
@@ -55,7 +55,7 @@ def gen_precondition(task_result):
     }
     messages = PRECONDITION_EXTRACTION_PROMPT.copy()
     messages.append(user_message)
-    response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
     model_answer = response.choices[0].message.content
     precondition = extract_precondition_from_response(model_answer)
     task_result["precondition"] = precondition

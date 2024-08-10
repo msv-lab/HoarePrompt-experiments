@@ -25,7 +25,6 @@ def extract_precondition_from_response(response_content):
             return match.group(1).strip()
         elif match.group(2):
             return match.group(2).strip()
-    print("WARNING: Fail to extract precondition")
     return response_content
 
 
@@ -41,6 +40,7 @@ def extract_correctness_from_response(response_content: str) -> str:
 
 
 def replace_function_name(code: str) -> str:
+    # This function replaces the original function name with 'func' to reduce its impact on the LLM.
     pattern = r'\bdef\s+(\w+)\s*\('
     matches = re.findall(pattern, code)
 
@@ -63,6 +63,7 @@ def replace_function_name(code: str) -> str:
     return replaced_code
 
 def count_function_defs(code: str) -> int:
+    # The function returns the number of function definitions in the code.
     pattern = r'\bdef\s+\w+\s*\('
     matches = re.findall(pattern, code)
     return len(matches)

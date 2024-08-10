@@ -1,7 +1,7 @@
 import ast
 
 from correctness_main import check_program
-from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot
+from complete import analyze_code_with_precondition, analyze_code_with_precondition_cot
 from extractor import replace_function_name
 
 specification = "Write a python function to find the number of divisors of a given integer."

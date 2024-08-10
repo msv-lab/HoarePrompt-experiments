@@ -1,4 +1,3 @@
-import os
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from groq import Groq
 import openai
@@ -8,10 +7,11 @@ from hoare_triple import State, Triple, IfTriple, LoopTriple, FuncTriple, parse_
 from prompt import VERIFYER_SYSTEM_PROMPT, VERIFYER_SYSTEM_PROMPT_IF, VERIFYER_SYSTEM_PROMPT_LOOP, GENERALIZE_PRECONDITION_PROMPT
 from extractor import extract_postcondition, extract_precondition_from_response
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY1"))
-
+# client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+client = openai.OpenAI()
 DEFAULT_TEMPERATURE = 0.7
-MODEL = "mixtral-8x7b-32768"
+# MODEL = "mixtral-8x7b-32768"
+MODEL = "gpt-4o-mini"
 
 generic_ctx = [
     Triple(
@@ -208,13 +208,8 @@ def find_first_string_with_char(strings, char):
 
 
 @retry(wait=wait_random_exponential(min=1, max=300), stop=stop_after_attempt(15))
-def chat_with_groq(**kwargs):
+def chat_with_llm(**kwargs):
     return client.chat.completions.create(**kwargs)
-
-
-@retry(wait=wait_random_exponential(min=1, max=300), stop=stop_after_attempt(15))
-def chat_with_gpt(**kwargs):
-    return openai.Completion.creat(**kwargs)
 
 
 def complete_triple(incomplete_triple, context_triples=generic_ctx, example_number=5):
@@ -225,11 +220,11 @@ def complete_triple(incomplete_triple, context_triples=generic_ctx, example_numb
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
         msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
-    print("+" * 50)
-    print(incomplete_triple)
-    print(f"LLM post: {post}")
+    # print("+" * 50)
+    # print(incomplete_triple)
+    # print(f"LLM post: {post}")
     return post
 
 
@@ -239,11 +234,11 @@ def complete_if_triple(incomplete_triple, context_triples=generic_if_ctx):
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
         msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
-    print("*" * 50)
-    print(incomplete_triple)
-    print(f"LLM post: {post}")
+    # print("*" * 50)
+    # print(incomplete_triple)
+    # print(f"LLM post: {post}")
     return post
 
 def complete_while_triple(incomplete_triple, context_triples=generic_while_ctx):
@@ -252,11 +247,11 @@ def complete_while_triple(incomplete_triple, context_triples=generic_while_ctx):
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
         msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
-    print("*" * 50)
-    print(incomplete_triple)
-    print(f"LLM post: {post}")
+    # print("*" * 50)
+    # print(incomplete_triple)
+    # print(f"LLM post: {post}")
     return post
 
 
@@ -266,11 +261,11 @@ def complete_for_triple(incomplete_triple, context_triples=generic_for_ctx):
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
         msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
-    print("*" * 50)
-    print(incomplete_triple)
-    print(f"LLM post: {post}")
+    # print("*" * 50)
+    # print(incomplete_triple)
+    # print(f"LLM post: {post}")
     return post
 
 def complete_func_triple(incomplete_triple, context_triples=generic_func_ctx):
@@ -279,14 +274,15 @@ def complete_func_triple(incomplete_triple, context_triples=generic_func_ctx):
         msgs.append({"role": "system", "name": "example_user", "content": format_prompt(ctx)})
         msgs.append({"role": "assistant", "content": f"Postcondition: **{ctx.postcondition}**"})
     msgs.append({"role": "user", "content": format_prompt(incomplete_triple)})
-    response = chat_with_groq(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=msgs, temperature=DEFAULT_TEMPERATURE)
     post = extract_postcondition(response.choices[0].message.content)
-    print("*" * 50)
-    print(incomplete_triple)
-    print(f"LLM post: {post}")
+    # print("*" * 50)
+    # print(incomplete_triple)
+    # print(f"LLM post: {post}")
     return post
 
 def generalize_precondition(precondition: str) -> str:
+    # This function generalizes loop preconditions, e.g., 'n is 5, m is 6' is generalized to 'n and m are integers.'
     user_message = {
         "role": "user",
         "name": "user",
@@ -294,26 +290,28 @@ def generalize_precondition(precondition: str) -> str:
     }
     messages = GENERALIZE_PRECONDITION_PROMPT.copy()
     messages.append(user_message)
-    response = chat_with_groq(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
+    response = chat_with_llm(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
     model_answer = response.choices[0].message.content
     precondition = extract_precondition_from_response(model_answer)
     return precondition
 
 def format_prompt(triple) -> str:
+    # This function generates prompts for the LLM based on different AST nodes.
     if isinstance(triple, Triple):
-        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```"
+        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}\n```"
 
     if isinstance(triple, IfTriple):
-        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition for if: {triple.if_postcondition}\nPostcondition for else: {'there is no else part in the code' if triple.else_postcondition is None else triple.else_postcondition}"
+        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}\n```\nPostcondition for if body: {triple.if_postcondition}\nPostcondition for else body: {'there is no else part in the code' if triple.else_postcondition is None else triple.else_postcondition}"
 
     if isinstance(triple, LoopTriple):
-        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition for loop body: {triple.body_postcondition}"
+        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}\n```\nPostcondition for loop body: {triple.body_postcondition}"
 
     if isinstance(triple, FuncTriple):
-        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}```\nPostcondition for function body: {triple.body_postcondition}"
+        return f"Precondition: {print_state(triple.precondition)}\nProgram fragment:\n```\n{pprint_cmd(triple.command)}\n```\nPostcondition for function body: {triple.body_postcondition}"
 
 
 def complete_triple_cot(triple: Triple) -> str:
+    # This function selects different processing logic based on various AST nodes and recursively obtains the overall postcondition.
     assert triple.postcondition == State.UNKNOWN
     if isinstance(triple.command,
                   (ast.Assign, ast.AugAssign, ast.Expr, ast.Return, ast.Raise, ast.Pass, ast.Break, ast.Continue)):
@@ -321,10 +319,8 @@ def complete_triple_cot(triple: Triple) -> str:
         return post
     if isinstance(triple.command, list):
         pre = triple.precondition
-        # ctx = []
         for subcmd in triple.command:
             completion = complete_triple_cot(Triple(pre, subcmd, State.UNKNOWN))
-            # ctx.append(Triple(pre, subcmd, completion))
             pre = completion
         return pre
     if isinstance(triple.command, ast.If):
@@ -340,6 +336,7 @@ def complete_triple_cot(triple: Triple) -> str:
         if_triple = IfTriple(pre, triple.command, if_post, else_post, State.UNKNOWN)
         return complete_if_triple(if_triple)
     if isinstance(triple.command, ast.Try):
+        # TODO: The try statement has not been logically separated from the ctx yet
         pre = triple.precondition
         try_completion = complete_triple_cot(Triple(pre, triple.command.body, State.UNKNOWN))
         except_completion = complete_triple_cot(Triple(State.UNKNOWN, triple.command.body, State.UNKNOWN))
@@ -372,13 +369,15 @@ def complete_triple_cot(triple: Triple) -> str:
     raise ValueError(f"unsupported statement type: {triple.command} {pprint_cmd(triple.command)}")
 
 
-def analyze_code_with_precondition_non_cot(parsed_code, precondition: str) -> str:
+def analyze_code_with_precondition(parsed_code, precondition: str) -> str:
+    # For external calls
     triple = Triple(precondition, parsed_code, State.UNKNOWN)
     postcondition = complete_triple(triple)
     return postcondition
 
 
 def analyze_code_with_precondition_cot(parsed_code, precondition: str) -> str:
+    # For external calls to HoareCoT
     triple = Triple(precondition, parsed_code, State.UNKNOWN)
     postcondition = complete_triple_cot(triple)
     return postcondition

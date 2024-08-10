@@ -1,7 +1,7 @@
 import ast
 
 from correctness_main import check_program
-from complete import analyze_code_with_precondition_non_cot, analyze_code_with_precondition_cot
+from complete import analyze_code_with_precondition, analyze_code_with_precondition_cot
 from extractor import replace_function_name
 
 specification = "Write a python function to check whether the given number can be represented as the difference of two squares or not."
@@ -21,7 +21,7 @@ parse_code = ast.parse(replaced_code).body
 precondition = "n is an integer."
 
 hoare_cot_post = analyze_code_with_precondition_cot(parse_code, precondition)
-cot_post = analyze_code_with_precondition_non_cot(parse_code, precondition)
+cot_post = analyze_code_with_precondition(parse_code, precondition)
 
 hoare_cot_correctness_str, hoare_cot_response = check_program(specification, code, hoare_cot_post)
 cot_correctness_str, cot_response = check_program(specification, code, cot_post)

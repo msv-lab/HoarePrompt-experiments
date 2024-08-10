@@ -1,3 +1,4 @@
+# VERIFYER_SYSTEM_PROMPT and its variants are used as system prompts for different nodes in complete.
 VERIFYER_SYSTEM_PROMPT = """You are assigned the role of a program verifier, responsible for completing Hoare triples. Each Hoare triple is made up of three components: a precondition, a program fragment, and a postcondition. The precondition and the postcondition are expressed in natural language.
 
 Precondition: describes the initial state of the program variables before the execution of the program fragment. This description should only include the values of the variables, without detailing the operational aspects of the program.
@@ -30,6 +31,7 @@ Program Fragment: This is a given part of the task and is not something you need
 
 Postcondition: describes the state of the program variables after the execution of the program fragment with the initial state described in the precondition. This description should include both the values of the variables and the relationships between them. Similar to the precondition, avoid explaining how the program operates; concentrate solely on the variable values and their interrelations. You need to strictly follow the format."""
 
+# CODE_GEN_PROMPT and PRECONDITION_EXTRACTION_PROMPT are used for get_code_and_precondition.
 CODE_GEN_PROMPT = [
     {'role': 'system',
      'content': 'You are assigned the role of a Python programmer. Your task is to write the corresponding Python program based on the given natural language specifications and test case.'},
@@ -70,6 +72,7 @@ PRECONDITION_EXTRACTION_PROMPT = [
     {'role': 'assistant',
      'content': 'Precondition: **n is a non-negative integer.**'}]
 
+# CHECK_CODE_PROMPT_WITH_EXPLANATION and CHECK_CODE_PROMPT are two CoT prompts used to guide the LLM in using postconditions or directly engaging in chain-of-thought reasoning.
 CHECK_CODE_PROMPT_WITH_EXPLANATION = [
     {'role': 'system',
      'content': 'You have been assigned the role of a program verifier. Your task is to determine the correctness of a given Python program based on the provided natural language specification and explanation. If the program meets the specification, provide "True" as the Correctness; otherwise, provide "False". Partially correct programs should be considered incorrect. You need to strictly follow the format.'},
@@ -120,6 +123,7 @@ CHECK_CODE_PROMPT = [
      'content': 'Explanation: The function `is_woodall` accepts an integer `n` and returns the result of the comparison `n == (n*(2**(n-1)))`. However, this formula is incorrect for determining whether a number is a Woodall number. The correct formula for a Woodall number is `m = n * 2^n - 1`. To properly check if a number is a Woodall number, the function should verify whether a given `m` equals `n * 2^n - 1` for some integer `n`. Therefore, the current function does not meet the specification and does not correctly identify Woodall numbers.\nCorrectness: **False**.'}
 ]
 
+# Used to generalize the contents of the precondition before entering a loop.
 GENERALIZE_PRECONDITION_PROMPT = [
     {'role': 'system',
      'content': 'You have been assigned the role of a Python program verifier. To ensure that the program can be verified within loops, you need to generalize the obtained precondition. This involves converting quantitative descriptions, such as specific values, into qualitative descriptions, such as data types. Additionally, you must retain the relationships between the variables. You need to strictly follow the format.'},
