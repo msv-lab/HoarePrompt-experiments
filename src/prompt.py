@@ -92,12 +92,16 @@ CHECK_CODE_PROMPT_WITH_EXPLANATION = [
     {'role': 'user', 'name': 'example_user',
      'content': 'Specification: Write a function to check if the given number is woodball or not.\nCode:\n```\ndef is_woodall(n):\r\n    return n == (n*(2**(n-1)))\n```\nExplanation: The function returns a boolean value indicating whether n is a Woodall number (a number of the form n\*2^(n-1) for some integer n > 0). Additionally, if the function returns True, then n has the value of a Woodall number, and if the function returns False, then n does not have the value of a Woodall number.'},
     {'role': 'assistant',
-     'content': 'Explanation: According to the explanation, the function returns a boolean value indicating whether n is a Woodall number (a number of the form n\*2^(n-1) for some integer n > 0). However, the formula `n * 2^(n-1)` is incorrect for determining Woodall numbers. The correct formula for a Woodall number is `n * 2^n - 1`. Therefore, the function does not correctly check for Woodall numbers.\nCorrectness: **False**.'}
+     'content': 'Explanation: According to the explanation, the function returns a boolean value indicating whether n is a Woodall number (a number of the form n\*2^(n-1) for some integer n > 0). However, the formula `n * 2^(n-1)` is incorrect for determining Woodall numbers. The correct formula for a Woodall number is `n * 2^n - 1`, where `n` is a positive integer. To check if a given number `m` is a Woodall number, you should verify whether `m` equals `n * 2^n - 1` for some integer `n`. Therefore, the function does not correctly check for Woodall numbers.\nCorrectness: **False**.'}
 ]
 
 CHECK_CODE_PROMPT = [
     {'role': 'system',
      'content': 'You have been assigned the role of a program verifier. Your task is to determine the correctness of a given Python program based on the provided natural language specification. If the program meets the specification, provide "True" as the Correctness; otherwise, provide "False". Partially correct programs should be considered incorrect. You need to strictly follow the format.'},
+    {'role': 'user', 'name': 'example_user',
+     'content': 'Specification: Write a python function to identify non-prime numbers.\nCode:\n```\ndef is_not_prime(n):\r\n    if n < 2:\r\n        return True\r\n    for i in range(2, n):\r\n        if n % i == 0:\r\n            return True\r\n    return False\n```'},
+    {'role': 'assistant',
+     'content': 'Explanation: The function `is_not_prime` accepts an integer `n`. If `n` is less than 2, the function immediately returns `True`, as numbers less than 2 are not considered prime. Otherwise, the function iterates through all numbers from 2 to `n-1`. If any of these numbers divides `n` without a remainder, the function returns `True`, indicating that `n` is not a prime number. If no such divisor is found, the function returns `False`, correctly identifying `n` as a prime number. The function correctly implements the specification to identify non-prime numbers.\nCorrectness: **True**.'},
     {'role': 'user', 'name': 'example_user',
      'content': 'Specification: Write a function to count the most common words in a dictionary.\nCode:\n```from collections import Counter\r\ndef count_common(words):\r\n    counter = Counter(words)\r\n    most_common = counter.most_common(1)\r\n    return most_common\n```'},
     {'role': 'assistant',
@@ -110,6 +114,10 @@ CHECK_CODE_PROMPT = [
      'content': 'Specification: Write a python function to check whether the given number can be represented as difference of two squares or not.\nCode:\n```import math\r\ndef dif_Square(n):\r\n    for i in range(int(math.sqrt(n)), -1, -1):\r\n        for j in range(i, -1, -1):\r\n            if i*i - j*j == n:\r\n                return True\r\n    return False\n```.'},
     {'role': 'assistant',
      'content': 'Explanation: The function `dif_Square` accepts an integer `n` and iterates over `i` from the integer square root of `n` down to 0, with a step of -1. For each `i`, the function iterates over `j` from `i` down to 0, with a step of -1. If at any point `i^2 - j^2 = n`, the function returns `True`. However, the range of `i` is too narrow, and the function only returns `True` when `i*i = n` and `j = 0`. If `i*i < n` (i.e., after the first iteration), the function cannot detect any `i` and `j` that satisfy the condition, leading to incorrect results.\n Correctness: **False**.'},
+    {'role': 'user', 'name': 'example_user',
+     'content': 'Specification: Write a function to check if the given number is woodball or not.\nCode:\n```\ndef is_woodall(n):\r\n    return n == (n*(2**(n-1)))\n```'},
+    {'role': 'assistant',
+     'content': 'Explanation: The function `is_woodall` accepts an integer `n` and returns the result of the comparison `n == (n*(2**(n-1)))`. However, this formula is incorrect for determining whether a number is a Woodall number. The correct formula for a Woodall number is `m = n * 2^n - 1`. To properly check if a number is a Woodall number, the function should verify whether a given `m` equals `n * 2^n - 1` for some integer `n`. Therefore, the current function does not meet the specification and does not correctly identify Woodall numbers.\nCorrectness: **False**.'}
 ]
 
 GENERALIZE_PRECONDITION_PROMPT = [

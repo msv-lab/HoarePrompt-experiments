@@ -197,17 +197,17 @@ def main(data, logger):
     mcc_non_cot = calculate_mcc(tp_non_cot, tn_non_cot, fp_non_cot, fn_non_cot)
     mcc_no_explanation = calculate_mcc(tp_no_explanation, tn_no_explanation, fp_no_explanation, fn_no_explanation)
 
-    logger.info(f"CoT Accuracy: {cot_rate}")
-    logger.info(f"non-CoT Accuracy: {non_cot_rate}")
-    logger.info(f"No Explanation Accuracy: {no_explanation_rate}\n")
+    logger.info(f"HoareCoT Accuracy: {cot_rate}")
+    logger.info(f"CoT with Explanation Accuracy: {non_cot_rate}")
+    logger.info(f"CoT Accuracy: {no_explanation_rate}\n")
 
-    logger.info(f"CoT Confusion Matrix: tp-{tp_cot}, fp-{fp_cot}, fn-{fn_cot}, tn-{tn_cot}")
-    logger.info(f"non-CoT Confusion Matrix: tp-{tp_non_cot}, fp-{fp_non_cot}, fn-{fn_non_cot}, tn-{tn_non_cot}")
+    logger.info(f"HoareCoT Confusion Matrix: tp-{tp_cot}, fp-{fp_cot}, fn-{fn_cot}, tn-{tn_cot}")
+    logger.info(f"CoT with Explanation Confusion Matrix: tp-{tp_non_cot}, fp-{fp_non_cot}, fn-{fn_non_cot}, tn-{tn_non_cot}")
     logger.info(
-        f"No Explanation Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
-    logger.info(f"CoT MCC: {mcc_cot}")
-    logger.info(f"non-CoT MCC: {mcc_non_cot}")
-    logger.info(f"No Explanation MCC: {mcc_no_explanation}")
+        f"CoT Confusion Matrix: tp-{tp_no_explanation}, fp-{fp_no_explanation}, fn-{fn_no_explanation}, tn-{tn_no_explanation}")
+    logger.info(f"HoareCoT MCC: {mcc_cot}")
+    logger.info(f"CoT with Explanation MCC: {mcc_non_cot}")
+    logger.info(f"CoT MCC: {mcc_no_explanation}")
 
 
 if __name__ == "__main__":

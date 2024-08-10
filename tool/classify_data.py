@@ -4,7 +4,7 @@ import argparse
 
 
 def classify_data(date):
-    folder_path = os.path.join('logs',date)
+    folder_path = os.path.join('logs', 'gpt-4_correctness_' + date)
     input_file_path = os.path.join(folder_path, f'{date}.csv')
 
     df = pd.read_csv(input_file_path)
