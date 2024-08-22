@@ -1,8 +1,13 @@
 import ast
 
-from correctness_main import check_program
-from complete import analyze_code_with_precondition, analyze_code_with_precondition_cot
-from extractor import replace_function_name
+from src.experimentation.correctness_main import check_program
+from src.experimentation.complete.complete import analyze_code_with_precondition, analyze_code_with_precondition_cot
+from src.experimentation.preprocessing import replace_function_name
+from src.common.communication import Model
+
+# Settings
+MODEL = Model.GPT_4O_MINI
+TEMPERATURE = 0.7
 
 specification = "Write a python function to check whether the given number can be represented as the difference of two squares or not."
 code = """
@@ -20,21 +25,20 @@ print(replaced_code)
 parse_code = ast.parse(replaced_code).body
 precondition = "n is an integer."
 
-hoare_cot_post = analyze_code_with_precondition_cot(parse_code, precondition)
-cot_post = analyze_code_with_precondition(parse_code, precondition)
+hoare_cot_post = analyze_code_with_precondition_cot(parse_code, precondition, MODEL, TEMPERATURE)
+cot_post = analyze_code_with_precondition(parse_code, precondition, MODEL, TEMPERATURE)
 
-hoare_cot_correctness_str, hoare_cot_response = check_program(specification, code, hoare_cot_post)
-cot_correctness_str, cot_response = check_program(specification, code, cot_post)
+hoare_cot_correctness_str, hoare_cot_response = check_program(specification, code, None, MODEL, TEMPERATURE,
+                                                              hoare_cot_post)
+cot_correctness_str, cot_response = check_program(specification, code, None, MODEL, TEMPERATURE, cot_post)
 
-print('='*50)
+print('=' * 50)
 print(f"Result:")
 print(f"HoareCoT Result: {hoare_cot_correctness_str}")
 print(f"CoT Result: {cot_correctness_str}")
-print('='*50)
+print('=' * 50)
 print(f"HoareCoT Post: {hoare_cot_post}")
 print(f"CoT Post: {cot_post}")
-print('='*50)
+print('=' * 50)
 print(f"HoareCoT Response: {hoare_cot_response}")
 print(f"CoT Response: {cot_response}")
-
-

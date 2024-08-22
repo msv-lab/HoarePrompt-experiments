@@ -2,7 +2,7 @@ import logging
 import os
 
 
-def logger_setup(base, name):
+def logger_setup(base: str, name: str):
     logger = logging.getLogger(f'{name}_{base}')
     logger.setLevel(logging.DEBUG)
     log_dir = os.path.join('logs', f'{name}_{base}')

@@ -2,9 +2,12 @@ import pandas as pd
 import os
 import argparse
 
+from src.common.communication import Model
+
+MODEL = Model.GPT_4O_MINI
 
 def classify_data(date):
-    folder_path = os.path.join('logs', 'gpt-4_correctness_' + date)
+    folder_path = os.path.join('logs', f'{MODEL.value}_correctness_' + date)
     input_file_path = os.path.join(folder_path, f'{date}.csv')
 
     df = pd.read_csv(input_file_path)

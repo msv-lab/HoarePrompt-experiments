@@ -4,47 +4,21 @@ from math import sqrt
 import csv
 import os
 
-from complete import analyze_code_with_precondition, analyze_code_with_precondition_cot, chat_with_llm
-from prompt import CHECK_CODE_PROMPT_WITH_EXPLANATION, CHECK_CODE_PROMPT
-from file_io import load_json
-from logger_setup import logger_setup
-from extractor import extract_correctness_from_response, replace_function_name, count_function_defs
+from src.experimentation.complete.complete import analyze_code_with_precondition, analyze_code_with_precondition_cot
+from src.common.file_io import load_json
+from src.common.logger_setup import logger_setup
+from src.experimentation.correctness_analysis import check_program
+from src.experimentation.preprocessing import replace_function_name, count_function_defs
+from src.common.communication import Model
 
-DATA_FILE = 'data/mixtral_20240630(complex).json'
-# MODEL = "mixtral-8x7b-32768"
-MODEL = "gpt-4o-mini"
-DEFAULT_TEMPERATURE = 0.7
+# Settings
+DATA_FILE = os.path.join('data', 'mixtral_20240630(complex).json')
 
+MODEL_FOR_POST = Model.GPT_4O_MINI
+TEMPERATURE_FOR_POST = 0.7
 
-def check_program(specification, code, logger, explanation=None):
-    # This function analyzes whether the program meets the natural language specification, with or without postconditions.
-    if explanation:
-        user_message = {
-            "role": "user",
-            "name": "user",
-            "content": f"Specification: {specification}\nCode:\n```\n{code}\n```\nExplanation: {explanation}"
-        }
-        messages = CHECK_CODE_PROMPT_WITH_EXPLANATION.copy()
-        messages.append(user_message)
-        response = chat_with_llm(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
-        model_answer = response.choices[0].message.content
-        correctness = extract_correctness_from_response(model_answer)
-
-    else:
-        user_message = {
-            "role": "user",
-            "name": "user",
-            "content": f"Specification: {specification}\nCode:\n```\n{code}\n```"
-        }
-        messages = CHECK_CODE_PROMPT.copy()
-        messages.append(user_message)
-        response = chat_with_llm(model=MODEL, messages=messages, temperature=DEFAULT_TEMPERATURE)
-        model_answer = response.choices[0].message.content
-        correctness = extract_correctness_from_response(model_answer)
-
-    if correctness not in ["True", "False"]:
-        logger.warning(f"Cannot extract correctness value.")
-    return correctness == "True", model_answer
+MODEL_FOR_ANALYSIS = Model.GPT_4O_MINI
+TEMPERATURE_FOR_ANALYSIS = 0.7
 
 
 def calculate_mcc(tp, tn, fp, fn):
@@ -71,7 +45,7 @@ def update_metrics(correctness, test_result, tp, tn, fp, fn):
     return tp, tn, fp, fn
 
 
-def main(data, logger):
+def main(data: dict, logger):
     # basic data
     total = 0
     non_cot_correct = 0
@@ -118,14 +92,14 @@ def main(data, logger):
 
         try:
             # get hoarecot and cot postcondition
-            hoare_cot_post = analyze_code_with_precondition_cot(parsed_code, precondition)
-            cot_post = analyze_code_with_precondition(parsed_code, precondition)
+            hoare_cot_post = analyze_code_with_precondition_cot(parsed_code, precondition, MODEL_FOR_POST, TEMPERATURE_FOR_POST)
+            one_step_post = analyze_code_with_precondition(parsed_code, precondition, MODEL_FOR_POST, TEMPERATURE_FOR_POST)
 
             # use postcondition to analyse code correctness
             total += 1
-            hoare_cot_correctness, hoare_cot_response = check_program(specification, replaced_code, logger, hoare_cot_post)
-            cot_correctness, cot_response = check_program(specification, replaced_code, logger, cot_post)
-            no_explanation_correctness, no_explanation_response = check_program(specification, replaced_code, logger)
+            hoare_cot_correctness, hoare_cot_response = check_program(specification, replaced_code, logger, MODEL_FOR_ANALYSIS, TEMPERATURE_FOR_ANALYSIS, hoare_cot_post)
+            cot_correctness, cot_response = check_program(specification, replaced_code, logger, MODEL_FOR_ANALYSIS, TEMPERATURE_FOR_ANALYSIS, one_step_post)
+            no_explanation_correctness, no_explanation_response = check_program(specification, replaced_code, logger, MODEL_FOR_ANALYSIS, TEMPERATURE_FOR_ANALYSIS)
         # if any api error, break and calculate result directly
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -152,7 +126,7 @@ def main(data, logger):
         logger.debug(f"Code:\n{code}")
         logger.debug(f"Test Pass Rate {task_data['test_result']}")
         logger.debug(f"HoareCoT Postcondition: {hoare_cot_post}")
-        logger.debug(f"CoT Postcondition: {cot_post}")
+        logger.debug(f"CoT Postcondition: {one_step_post}")
         logger.debug(f"HoareCoTCoT Correctness: {hoare_cot_correctness}")
         logger.debug(f"CoT Correctness: {cot_correctness}")
         logger.debug(f"No Explanation Correctness: {no_explanation_correctness}")
@@ -175,7 +149,7 @@ def main(data, logger):
             "CoT Correctness": cot_correctness,
             "No Explanation Correctness": no_explanation_correctness,
             "HoareCoT Post": hoare_cot_post,
-            "CoT Post": cot_post,
+            "CoT Post": one_step_post,
             "HoareCoT Response": hoare_cot_response,
             "CoT Response": cot_response,
             "No Explanation Response": no_explanation_response
@@ -209,5 +183,5 @@ def main(data, logger):
 if __name__ == "__main__":
     data = load_json(DATA_FILE)
     base = datetime.now().strftime("%Y%m%d-%H%M%S")
-    logger = logger_setup(base, f"{MODEL}_correctness")
+    logger = logger_setup(base, f"{MODEL_FOR_POST.value}_correctness")
     main(data, logger)

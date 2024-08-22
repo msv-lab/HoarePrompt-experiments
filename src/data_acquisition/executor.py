@@ -1,7 +1,7 @@
 import subprocess
 
 
-def execute_code(code_str):
+def execute_code(code_str: str):
     try:
         result = subprocess.run(['python3', '-c', code_str], capture_output=True,
                                 text=True, timeout=3)
@@ -35,7 +35,7 @@ def execute_tests(item: dict, code):
     return len(test_list), passed_tests, item_results
 
 
-def summary(passed_tests, total_tests):
+def summary(passed_tests: int, total_tests: int) -> float:
     pass_rate = passed_tests / total_tests if total_tests else 0
     return pass_rate
 
