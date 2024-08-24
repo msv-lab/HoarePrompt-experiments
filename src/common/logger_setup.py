@@ -1,14 +1,14 @@
 import logging
-import os
+from pathlib import Path
 
 
-def logger_setup(base: str, name: str):
+def logger_setup(directory: Path, base: str, name: str):
     logger = logging.getLogger(f'{name}_{base}')
     logger.setLevel(logging.DEBUG)
-    log_dir = os.path.join('logs', f'{name}_{base}')
-    os.makedirs(log_dir, exist_ok=True)
+    log_dir = directory / f'{name}_{base}'
+    log_dir.mkdir(parents=True, exist_ok=True)
 
-    log_file = os.path.join(log_dir, f'{base}.log')
+    log_file = log_dir / f'{base}.log'
     fh = logging.FileHandler(log_file)
     fh.setLevel(logging.DEBUG)
 
@@ -22,7 +22,7 @@ def logger_setup(base: str, name: str):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    csv_file = os.path.join(log_dir, f'{base}.csv')
-    logger.csv_file = csv_file
+    logger.log_dir = log_dir
+    logger.csv_file = log_dir / f'{base}.csv'
 
     return logger

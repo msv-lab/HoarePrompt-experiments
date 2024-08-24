@@ -1,6 +1,6 @@
 import re
+from model import Model
 
-from src.common.communication import chat_with_llm
 from src.data_acquisition.executor import execute_tests, summary
 
 CODE_GEN_PROMPT = [
@@ -28,7 +28,7 @@ def extract_code_from_response(response_content):
     return response_content
 
 
-def gen_code(task, model, temperature):
+def gen_code(task, model: Model):
     task_id = task['task_id']
     specification = task['prompt']
     test_case = task['test_list'][0]
@@ -40,9 +40,9 @@ def gen_code(task, model, temperature):
     messages = CODE_GEN_PROMPT
     messages.append(user_message)
 
-    response = chat_with_llm(model=model.value, messages=messages, temperature=temperature)
-    model_answer = response.choices[0].message.content
-    generated_code = extract_code_from_response(model_answer)
+    response = model.query(messages)
+    generated_code = extract_code_from_response(response)
+    print(generated_code)
     total_tests, passed_tests, _ = execute_tests(task, generated_code)
     test_result = summary(passed_tests, total_tests)
     print(f"Finished task ID {task_id} code gen.")
