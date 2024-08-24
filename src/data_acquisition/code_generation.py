@@ -1,6 +1,6 @@
 import re
 
-from src.common.communication import chat_with_llm
+from src.data_acquisition.communication import Model, chat_with_llm
 from src.data_acquisition.executor import execute_tests, summary
 
 CODE_GEN_PROMPT = [
@@ -28,7 +28,7 @@ def extract_code_from_response(response_content):
     return response_content
 
 
-def gen_code(task, model, temperature):
+def gen_code(task, model: Model, temperature: float):
     task_id = task['task_id']
     specification = task['prompt']
     test_case = task['test_list'][0]

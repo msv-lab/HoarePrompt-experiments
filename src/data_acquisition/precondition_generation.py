@@ -1,6 +1,6 @@
 import re
 
-from src.common.communication import chat_with_llm, Model
+from src.data_acquisition.communication import Model, chat_with_llm
 
 PRECONDITION_EXTRACTION_PROMPT = [
     {'role': 'system',
@@ -41,8 +41,6 @@ def extract_precondition_from_response(response_content: str) -> str:
 def gen_precondition(task_result: dict, model: Model, temperature: float):
     task_id = task_result["task_id"]
     code = task_result["code"]
-    if code == "":
-        return ""
     specification = task_result["specification"]
     user_message = {
         "role": "user",
