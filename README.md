@@ -1,24 +1,35 @@
-# HoarePrompt-mbpp-correctness
+# HoarePrompt-experiment
 
 ## Introduction
-HoarePrompt-mbpp-correctness aims to determine whether large language models (LLMs) can accurately judge if a program correctly implements specifications without running the tests, relying solely on natural language reasoning.
+This HoarePrompt-experiment aims to determine whether large language models (LLMs) can accurately judge if a program correctly implements specifications without running the tests, relying solely on natural language reasoning.
 
 ## Preparation
-Before running the project, ensure the `GROQ_API_KEY` and `OPENAI_API_KEY` is set as an environment variable.
+Before running the project, ensure the `GROQ_API_KEY`, `OPENAI_API_KEY` and all relative api keys are set as an environment variable.
+
+
+
+
+## Installation
+
+To install the necessary dependencies and `hoareprompt` package, run the following commands:
+
+```zsh
+pip install -r requirements.txt
+```
+```zsh
+pip install -e /path/to/hoareprompt
+```
+
+Replace `/path/to/hoareprompt` with the actual path to the `hoareprompt` package directory.
 
 ## Running the Project
-The project consists of two runnable parts:
 
-1. **Generating Code and Information**:
-   To generate a set of sanitized-mbpp codes and related information, run the following command in the project root directory:
-   ```bash
-   python3 -m src.data_acquisition.get_code_and_precondition
-   ```
-   This will create the necessary files in the `data` folder.
+You can run the project using the following command:
 
-2. **Testing Code Correctness**:
-   To test the LLM's ability to determine if the code meets the given specifications under CoT, non-CoT, and no explanation scenarios, run the following command in the project root directory:
-   ```bash
-   python3 -m src.experimentation.correctness_main
-   ```
-   Before running this, make sure to set the `DATA_FILE` variable in the script to the path of the data file you want to test in the `data` folder.
+```bash
+python3 -m src.main --data /path/to/data/file --log /path/to/log/dir --config /path/to/config/file
+```
+
+- `--data` : Path to the data file.
+- `--log` : Directory where logs will be stored.
+- `--config` : Path to the configuration file.
