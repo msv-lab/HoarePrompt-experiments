@@ -4,12 +4,19 @@ from math import sqrt
 import csv
 import os
 import argparse
+import shutil
 from pathlib import Path
 from hoareprompt import compute_postcondition, check_entailment, extract_precondition
+from importlib.metadata import version
 
 from src.file_io import load_json
 from src.logger_setup import logger_setup
 from src.preprocessing import replace_function_name, count_function_defs
+
+
+def save_to_file(content, file_path):
+    with open(file_path, 'w') as file:
+        file.write(content)
 
 
 def calculate_mcc(tp, tn, fp, fn):
@@ -19,21 +26,6 @@ def calculate_mcc(tp, tn, fp, fn):
     if denominator == 0:
         return 0
     return numerator / denominator
-
-
-def update_metrics(correctness, test_result, tp, tn, fp, fn):
-    # for update confusion matrix
-    if correctness == test_result:
-        if test_result:
-            tp += 1
-        else:
-            tn += 1
-    else:
-        if test_result:
-            fn += 1
-        else:
-            fp += 1
-    return tp, tn, fp, fn
 
 
 def main(data: dict, config: dict, logger):
@@ -98,7 +90,6 @@ def main(data: dict, config: dict, logger):
             check_directory.mkdir(parents=True, exist_ok=True)
 
             precondition = extract_precondition(specification, code, config, pre_directory)
-
             try:
                 # get hoarecot and cot postcondition
                 post = compute_postcondition(precondition, replaced_code, config, post_directory)
@@ -126,6 +117,12 @@ def main(data: dict, config: dict, logger):
                     fn += 1
                 else:
                     fp += 1
+
+            # save to log dir
+            save_to_file(specification, detail_log_directory / "description.txt")
+            save_to_file(code, detail_log_directory / "program.py")
+            save_to_file(precondition, detail_log_directory / "precondition.txt")
+            save_to_file(post, detail_log_directory / "postcondition.txt")
 
             # write to logger
             logger.debug(f"Dataset: {dataset}")
@@ -195,4 +192,14 @@ if __name__ == "__main__":
         log_directory = Path("logs")
     base = datetime.now().strftime("%Y%m%d-%H%M%S")
     logger = logger_setup(log_directory, base, f"{config['model']}_correctness")
+
+    # copy config to log dir
+    shutil.copy(config_file, logger.log_dir / config_file.name)
+
+    # save hoareprompt version to log dir
+    hoareprompt_version = version("hoareprompt")
+    version_file = logger.log_dir / "HOAREPROMPT_VERSION"
+    with open(version_file, 'w') as f:
+        f.write(f"hoareprompt version: {hoareprompt_version}\n")
+
     main(data, config, logger)
