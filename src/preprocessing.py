@@ -1,8 +1,8 @@
 import re
 
-
+# Replaces the original function names in the provided code with generic names like func1, func2 etc.
+# This is useful to reduce the impact of specific function names in LLMS not to skew our results
 def replace_function_name(code: str) -> str:
-    # This function replaces the original function name with 'func' to reduce its impact on the LLM.
     pattern = r'\bdef\s+(\w+)\s*\('
     matches = re.findall(pattern, code)
 
@@ -24,9 +24,8 @@ def replace_function_name(code: str) -> str:
 
     return replaced_code
 
-
+# The function returns the number of function definitions in the code as the projects handles only single-function scripts at this point
 def count_function_defs(code: str) -> int:
-    # The function returns the number of function definitions in the code.
     pattern = r'\bdef\s+\w+\s*\('
     matches = re.findall(pattern, code)
     return len(matches)
