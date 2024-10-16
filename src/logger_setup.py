@@ -2,10 +2,10 @@ import logging
 from pathlib import Path
 
 
-def logger_setup(directory: Path, base: str, name: str):
-    logger = logging.getLogger(f'{name}_{base}')
+def logger_setup(directory: Path, base: str):
+    logger = logging.getLogger(f'{base}')
     logger.setLevel(logging.DEBUG)
-    log_dir = directory / f'{name}_{base}'
+    log_dir = directory / f'{base}'
     log_dir.mkdir(parents=True, exist_ok=True)
 
     log_file = log_dir / f'{base}.log'

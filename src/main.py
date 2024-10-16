@@ -5,22 +5,22 @@ import csv
 import os
 import argparse
 import shutil
+import subprocess
 from pathlib import Path
 from hoareprompt import compute_postcondition, check_entailment, extract_precondition
 from importlib.metadata import version
-
+import importlib.util
 from src.file_io import load_json
 from src.logger_setup import logger_setup
 from src.preprocessing import replace_function_name, count_function_defs
 
-
+ # Writes the provided content to a specified file
 def save_to_file(content, file_path):
     with open(file_path, 'w') as file:
         file.write(content)
 
-
+# Calculates the Matthews Correlation Coefficient for evaluating binary classification results
 def calculate_mcc(tp, tn, fp, fn):
-    # for calculate mcc result
     numerator = tp * tn - fp * fn
     denominator = sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
     if denominator == 0:
@@ -29,14 +29,17 @@ def calculate_mcc(tp, tn, fp, fn):
 
 
 def main(data: dict, config: dict, logger):
-    # basic data
+    # These variables are used for tracking the number of tasks and accuracy
     total = 0
     correct = 0
 
-    # MCC data
+    # These counters are used for calculating MCC
     tp, tn, fp, fn = 0, 0, 0, 0
 
-    # CSV logger header
+    # Failed tasks list to store failure details
+    failed_tasks = []
+
+   # Set up CSV logger header for recording task results
     columns = [
         "Task ID", "Dataset", "Model", "Specification", "Code", "Test Result",
         f"{config['postcondition-mode']} Correctness", f"{config['postcondition-mode']} Post"]
@@ -45,19 +48,24 @@ def main(data: dict, config: dict, logger):
             writer = csv.DictWriter(file, fieldnames=columns)
             writer.writeheader()
 
-    # main loop, iterate each task in data
+    # This is the main loop where the work is done, it tterates over each task in the provided data
     for data_pair in data:
         for task_data in data_pair:
             task_id = task_data["task_id"]
             model = task_data["model"]
             dataset = task_data["dataset"]
             code = task_data["generated_code"]
+
+            # Here we replace the function name to avoid conflicts in parsing
             replaced_code = replace_function_name(code)
+
+            # For apps dataset, determine test correctness based on pass rate
             if dataset == "apps":
                 specification = task_data["question"]
                 pass_rate = task_data.get("pass_rate", 0)
                 test_result = pass_rate == 1
 
+            # For mbpp dataset, determine test correctness based on various accuracy metrics
             elif dataset == "mbpp":
                 specification = task_data["specification"]
                 base_accuracy = task_data.get("base_accuracy", 0)
@@ -70,17 +78,33 @@ def main(data: dict, config: dict, logger):
             logger.debug(f"Start Task {task_id}")
 
             try:
-                # if connot parse, skip this task
+                # if you connot parse the code in ast , skip this task
                 parsed_code = ast.parse(replaced_code).body
             except Exception as e:
                 logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
+                # Add this task to a failed tasks list with the fail reason being parse error
+                failed_tasks.append({
+                    "task_id": task_id,
+                    "model": model,
+                    "dataset": dataset,
+                    "code": code,
+                    "fail_reason": f"Parse error: {e}"
+                })
                 continue
 
             # if mult functions, skip this task
             if count_function_defs(code) > 1:
                 logger.debug(f"Task {task_id} skip due to mult functions.\n\n\n")
+                # Add this task to a failed tasks list with the fail reason being multiple functions error
+                failed_tasks.append({
+                    "task_id": task_id,
+                    "model": model,
+                    "dataset": dataset,
+                    "code": code,
+                    "fail_reason": "Multiple functions error"
+                })
                 continue
-
+            # Create log directories for saving the results like precondition, postcondition, entailment check
             detail_log_directory = logger.log_dir / "detail" / task_id / model
             pre_directory = detail_log_directory / "extract-precondition"
             post_directory = detail_log_directory / "compute-postconditon"
@@ -89,16 +113,26 @@ def main(data: dict, config: dict, logger):
             post_directory.mkdir(parents=True, exist_ok=True)
             check_directory.mkdir(parents=True, exist_ok=True)
 
+            # Extract precondition using HoarePrompt
             precondition = extract_precondition(specification, code, config, pre_directory)
+
             try:
-                # get hoarecot and cot postcondition
+                # Compute postcondition using the precondition and code bycinvoking hoareprompt
                 post = compute_postcondition(precondition, replaced_code, config, post_directory)
 
-                # use postcondition to analyse code correctness
+                # Check entailment to determine if the postcondition satisfies the specification by invoking HoarePrompt
                 total += 1
                 result = check_entailment(specification, post, code, config, check_directory)
             except Exception as e:
-                # if any api error, break and calculate result directly
+                # Handle any errors like API issues and log them also add the task to the failed tasks list
+                failed_tasks.append({
+                    "task_id": task_id,
+                    "model": model,
+                    "dataset": dataset,
+                    "code": code,
+                    "fail_reason": f"Error: {e}"
+                })
+
                 logger.error(f"Error: {e}")
                 break
 
@@ -106,7 +140,7 @@ def main(data: dict, config: dict, logger):
             if result == test_result:
                 correct += 1
 
-            # update mcc variables
+            # Update accuracy and MCC tracking counters based on result
             if result == test_result:
                 if test_result:
                     tp += 1
@@ -141,7 +175,7 @@ def main(data: dict, config: dict, logger):
             logger.debug(f"Total Test: {total}")
             logger.debug(f"Total Correct: {correct}\n\n\n")
 
-            # write to csv logger
+            # # Write task result to CSV logger
             result = {
                 "Task ID": task_id,
                 "Dataset": dataset,
@@ -157,7 +191,7 @@ def main(data: dict, config: dict, logger):
                 writer = csv.DictWriter(file, fieldnames=columns)
                 writer.writerow(result)
 
-    # calculate final result and write to logger
+     # Final accuracy and MCC logging
     rate = correct / total
     mcc = calculate_mcc(tp, tn, fp, fn)
 
@@ -165,8 +199,23 @@ def main(data: dict, config: dict, logger):
     logger.info(f"{config['postcondition-mode']} Confusion Matrix: tp-{tp}, fp-{fp}, fn-{fn}, tn-{tn}")
     logger.info(f"{config['postcondition-mode']} MCC: {mcc}")
 
+    # Only save the failed tasks if there are any
+    if failed_tasks:
+        failed_tasks_file = logger.log_dir / 'failed_tasks.csv'
+        
+        # Define the headers for the CSV file
+        failed_tasks_headers = ['task_id', 'model', 'dataset', 'code', 'fail_reason']
+
+        # Write the failed tasks to a CSV file
+        with open(failed_tasks_file, 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=failed_tasks_headers)
+            writer.writeheader()
+            for task in failed_tasks:
+                writer.writerow(task)
+
 
 if __name__ == "__main__":
+    # Initialize the argument parser with descriptions for expected command-line arguments
     parser = argparse.ArgumentParser(description="HoarePrompt Experiment")
     parser.add_argument('--config', type=str, help="Path to custom configuration file")
     parser.add_argument('--data', type=str, help="Path to read data")
@@ -189,17 +238,53 @@ if __name__ == "__main__":
     if args.log:
         log_directory = Path(args.log)
     else:
-        log_directory = Path("logs")
+        log_directory = Path("Results")
+    
+    #if the log directory does not exist, create it
+    log_directory.mkdir(parents=True, exist_ok=True)
+    
     base = datetime.now().strftime("%Y%m%d-%H%M%S")
-    logger = logger_setup(log_directory, base, f"{config['model']}_correctness")
+    
+    logger = logger_setup(log_directory, base)
 
     # copy config to log dir
     shutil.copy(config_file, logger.log_dir / config_file.name)
 
     # save hoareprompt version to log dir
     hoareprompt_version = version("hoareprompt")
-    version_file = logger.log_dir / "HOAREPROMPT_VERSION"
+    spec = importlib.util.find_spec("hoareprompt")
+    # Get the directory where Hoareprompt is installed
+    if spec is not None:
+        # this is the python script path
+        hoareprompt_path = spec.origin
+        # this is the source dir
+        hoareprompt_dir = os.path.dirname(hoareprompt_path)
+        # this is the git repo
+        repo_path = os.path.abspath(os.path.join(hoareprompt_dir, ".."))
+        #print(f"HoarePrompt is installed at: {repo_path}")
+    else:
+        print("HoarePrompt is not installed.")
+    #Check if it's a Git repository
+    if os.path.exists(os.path.join(repo_path, ".git")):
+        try:
+            # Run git command to get the latest commit hash
+            commit_hash_hoare = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=repo_path
+            ).strip().decode('utf-8')
+        except subprocess.CalledProcessError:
+            print("Failed to get the current commit hash.")
+    else:
+        print(f"{repo_path} is not a Git repository.")
+
+
+    # find the commit of the git repo we are in
+    commit_hash_exp = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode()
+
+    version_file = logger.log_dir / "VERSIONS"
     with open(version_file, 'w') as f:
         f.write(f"hoareprompt version: {hoareprompt_version}\n")
+        f.write(f"HoarePrompt commit hash: {commit_hash_hoare}\n")
+        f.write(f"HoarePrompt experiments commit hash: {commit_hash_exp}\n")
+        f.write(f"Model version: {config['model']}\n")
 
     main(data, config, logger)
