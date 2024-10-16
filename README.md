@@ -95,6 +95,7 @@ The experiment are dependent and will create various directories to organize con
     - **Logs**: Log files documenting the detailed execution of the experiment.
     - **Configuration Copy**: A copy of the configuration file used for the experiment, saved for future reference.
     - **Potential failed_tasks_file** : A file detailing any tasks that failed and the failure reason and error code
+    - **CSVs with the tasks and the results of the experiment** : detailed csvs with all the information of the tasks, the HoarePrompt result, potential counter examples etc
     - **Versioning Information**: A `VERSIONS` file is generated, containing version details of the `hoareprompt` package (the version), the commit hash of the 2 git directories (the HoarePrompt and the HoarePrompt-experiments one), and the LLm model used.
 
     Our proposal is that you also clone our [data repository](https://github.com/msv-lab/HoarePrompt-data) and use the Results folder in there to store the logs and the results of your experimental run. So using  `--log ../HoarePrompt-data/Results` is advised assuming you have cloned the [data repository](https://github.com/msv-lab/HoarePrompt-data) first.
