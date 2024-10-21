@@ -102,19 +102,17 @@ The experiment are dependent and will create various directories to organize con
 
 
 ## Contributions
-This is a joint project collaboration of Peking Univeristy and University College London.
-Feel free to contribute to HoarePrompt by opening issues or submitting pull requests on GitHub. Your contributions are highly appreciated!
+This is a project of Peking Univeristy. Feel free to contribute to HoarePrompt-data by opening issues or submitting pull requests on GitHub. Your contributions are highly appreciated!
 
-<table>
-  <tr>
-    <td style="text-align: center;">
-      <img src="./assets/PKU.png" alt="Image 1" width="300"/>
-    </td>
-    <td style="text-align: center;">
-      <img src="./assets/HoarePrompt_logo.png" alt="Image 2" width="300"/>
-    </td>
-    <td style="text-align: center;">
-      <img src="./assets/UCL.png" alt="Image 3" width="300"/>
-    </td>
-  </tr>
-</table>
+<div style="display: flex; justify-content: center;">
+  <table style="table-layout: fixed; text-align: center;">
+    <tr>
+      <td style="width: 50%; text-align: center;">
+        <img src="./assets/PKU.png" alt="Image 1" width="300"/>
+      </td>
+      <td style="width: 50%; text-align: center;">
+        <img src="./assets/HoarePrompt_logo.png" alt="Image 2" width="300"/>
+      </td>
+    </tr>
+  </table>
+</div>
