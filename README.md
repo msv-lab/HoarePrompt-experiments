@@ -88,7 +88,7 @@ If you do not provide the `--config` argument, the default configuration file (`
 
 The experiment are dependent and will create various directories to organize configuration, data, and logs:
 
-1. **Data File**: The data file (e.g., JSON) is read from the path specified with `--data`. For potential data to use you can visit our default_config.json mbpp.jsonl sanitized-mbpp.json or you can use the example data in the [input_data folder](./input_data)
+1. **Data File**: The data file  is read from the path specified with `--data`. For potential data to use you can consider the sanitized-mbpp.json or you can use the example data in the [input_data folder](./input_data)
 
 2. **Configuration File**: Passed via `--config`, this file contains parameters that guide the behavior of the experiment (model type, training options, etc.). If not provided, `default_config.json` will be used.
 3. **Log Directory**: If the log directory doesn't already exist, it will be created automatically. If no log directory is provided the `Results` directory will be used. Inside the log directory, a folder with the current datetime will be created inside which the following will be saved:
@@ -96,7 +96,7 @@ The experiment are dependent and will create various directories to organize con
     - **Configuration Copy**: A copy of the configuration file used for the experiment, saved for future reference.
     - **Potential failed_tasks_file** : A file detailing any tasks that failed and the failure reason and error code
     - **CSVs with the tasks and the results of the experiment** : detailed csvs with all the information of the tasks, the HoarePrompt result, potential counter examples etc
-    - **Versioning Information**: A `VERSIONS` file is generated, containing version details of the `hoareprompt` package (the version), the commit hash of the 2 git directories (the HoarePrompt and the HoarePrompt-experiments one), and the LLm model used.
+    - **Versioning Information**: A `VERSIONS` file is generated, containing version details of the `hoareprompt` package (the version), the commit hash of the 2 git directories (the HoarePrompt and the HoarePrompt-experiments one), and the LLM model used.
 
     Our proposal is that you also clone our [data repository](https://github.com/msv-lab/HoarePrompt-data) and use the Results folder in there to store the logs and the results of your experimental run. So using  `--log ../HoarePrompt-data/Results` is advised assuming you have cloned the [data repository](https://github.com/msv-lab/HoarePrompt-data) first.
 
