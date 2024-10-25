@@ -1,0 +1,125 @@
+#This is the summary for the whole function and its postcondition is : The function accepts parameters n, m, k, x, s, a, b, c, and d, updates min_time based on conditions, sets i as the length of array b, and retains the final values of other variables.
+def func(n, m, k, x, s, a, b, c, d):
+    #This is simple command and its postcondition is : `min_time` is the result of `n * x` within valid range
+    min_time = n * x
+    #This is simple command and its postcondition is : `min_time` is the result of `n * x` within valid range, `i` is assigned the value of `k`
+    i = k
+    #This is a summary of the total loop and its postcondition is : If `i` is already less than 0 initially, the loop will not be executed. In this case, `min_time` remains the result of `n * x` within a valid range, and `i` remains as `k`. If `i` is greater than or equal to 0 initially, the loop will be executed at least once. After 1 iteration, `min_time` is updated according to the conditions, `i` is incremented to `k + 1`.
+    while i < 0:
+        if d[i] <= s:
+            remaining_potions = max(0, n - c[i])
+            time_with_spell = remaining_potions * x
+            min_time = min(min_time, time_with_spell)
+        
+        i += 1
+        # In the following comments we are unrolling the loop 3 times to help you understand its functionality
+        #This is the summary of unrolled_loop_1 and its total postcondition is : `min_time` is the result of `n * x` within a valid range, `i` is assigned the value of `k` + 1. If `d[i]` is less than or equal to `s`, `min_time` is updated to be the minimum of the current `min_time` and `time_with_spell`, where `time_with_spell` is calculated as the maximum between 0 and `n - c[i]` multiplied by `x`.
+        #This is the summary of unrolled_loop_2 and its total postcondition is : `min_time` is the result of `n * x` within a valid range, `i` is assigned the value of `k + 1` less than 0, and if `d[i]` is less than or equal to `s`, `min_time` is updated to the new minimum value between the current `min_time` and `remaining_potions * x`, where `remaining_potions` is the maximum value between 0 and `n - c[i]`.
+        #This is the summary of unrolled_loop_3 and its total postcondition is : Output State: `min_time` is the result of `n * x` within a valid range, `i` is assigned the value of `k + 1`, `d[i]` is less than or equal to `s`, if `d[i]` is less than or equal to `s`, `remaining_potions` is the maximum value between 0 and `n - c[i]`, `time_with_spell` is calculated as `remaining_potions * x`, and `min_time` is updated to the new minimum value between the current `min_time` and `remaining_potions * x`.
+    #This is simple command and its postcondition is : `i` is assigned the value of `m`, where `m` is a variable; `min_time` remains the same if `i` is initially less than 0, otherwise `min_time` is updated after 1 iteration; `i` is incremented by 1 if the loop is executed at least once.
+    i = m
+    #This is a summary of the total loop and its postcondition is : Output State: If `i` is initially less than 0, `min_time` remains the same, and `i` is incremented by 1 until it becomes greater than or equal to 0. If `i` is initially greater than or equal to 0, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, and `i` is incremented by 1 until it exceeds the length of array `b`.
+    while i < 0:
+        if b[i] <= s:
+            time_with_spell = n * a[i]
+            min_time = min(min_time, time_with_spell)
+        
+        i += 1
+        # In the following comments we are unrolling the loop 3 times to help you understand its functionality
+        #This is the summary of unrolled_loop_1 and its total postcondition is : `i` is incremented by 1, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`
+        #This is the summary of unrolled_loop_2 and its total postcondition is : `i` is incremented by 1, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, `i` is less than 0, if `b[i]` is less than or equal to `s`, then `time_with_spell` is calculated as `n * a[i]`, and `min_time` is updated to the minimum value between the current `min_time` and `time_with_spell`.
+        #This is the summary of unrolled_loop_3 and its total postcondition is : `i` is incremented by 1, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`
+    #This is simple command and its postcondition is : Output State: If `i` is initially less than 0, `min_time` remains the same, and `i` is incremented by 1 until it becomes greater than or equal to 0. If `i` is initially greater than or equal to 0, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, and `i` is incremented by 1 until it exceeds the length of array `b`.
+    i = m
+    #This is a summary of the total loop and its postcondition is : `min_time` is the updated minimum value based on the conditions, `i` is equal to the length of array `b`, and other variables retain their final values.
+    while i < 0:
+        if b[i] <= s:
+            remaining_manapoints = s - b[i]
+            j = k
+            while j < 0:
+                if d[j] <= remaining_manapoints:
+                    remaining_potions = max(0, n - c[j])
+                    time_with_both_spells = remaining_potions * a[i]
+                    min_time = min(min_time, time_with_both_spells)
+                else:
+                    break
+                j += 1
+        
+        i += 1
+        # In the following comments we are unrolling the loop 3 times to help you understand its functionality
+        #This is a summary of the  whole if block and its total postcondition is : If `i` is initially less than 0, `min_time` remains unchanged, and `i` is incremented until it becomes greater than or equal to 0. If `i` is initially greater than or equal to 0, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, and `i` is incremented until it exceeds the length of array `b`.
+        #This is the if part of the statement and its postcondition is : If `j` is initially less than 0, the loop will not be executed, and all variables will retain their initial values. If `j` is greater than or equal to 0 initially, the loop will not be entered, and the values of the variables will remain unchanged.
+        if (b[i] <= s) :
+            #This is a summary of the total loop and its postcondition is : If `j` is initially less than 0, the loop will not be executed, and all variables will retain their initial values. If `j` is greater than or equal to 0 initially, the loop will not be entered, and the values of the variables will remain unchanged.
+            while j < 0:
+                if d[j] <= remaining_manapoints:
+                    remaining_potions = max(0, n - c[j])
+                    time_with_both_spells = remaining_potions * a[i]
+                    min_time = min(min_time, time_with_both_spells)
+                else:
+                    break
+                
+                j += 1
+                # In the following comments we are unrolling the loop 3 times to help you understand its functionality
+                #This is the summary of unrolled_loop_1 and its total postcondition is : `i`, `min_time`, `n`, `a`, `b`, `s`, `remaining_manapoints`, `j` are integers. `d` is a list of integers. If `d[j]` is less than or equal to `remaining_manapoints`, `remaining_potions` is calculated as the maximum of 0 and the difference between `n` and `c[j]`. `time_with_both_spells` is computed as the product of `remaining_potions` and `a[i]`. `min_time` is updated to the minimum value between the previous `min_time` and `time_with_both_spells`. If `d[j]` is greater than `remaining_manapoints`, the program breaks out of the loop or if statement. No other variables are modified except for those described above. `j` is increased by 1.
+                #This is the summary of unrolled_loop_2 and its total postcondition is : Output State: `i`, `min_time`, `n`, `a`, `b`, `s`, `remaining_manapoints`, `j`, `d` are integers. If `d[j]` is less than or equal to `remaining_manapoints`, `remaining_potions` is assigned the maximum of 0 and the difference between `n` and `c[j]`. `time_with_both_spells` is computed as the product of `remaining_potions` and `a[i]`. `min_time` is updated to the minimum value between the previous `min_time` and `time_with_both_spells`. If `d[j]` is not less than or equal to `remaining_manapoints`, the loop breaks after updating the necessary variables. `j` is increased by 1 until it becomes less than 0. `j` is increased by 1.
+                #This is the summary of unrolled_loop_3 and its total postcondition is : `i`, `min_time`, `n`, `a`, `b`, `s`, `remaining_manapoints`, `j + 1`, `d` are integers
+        #This is simple command in unrolled_loop_1 and its postcondition is : Output State: 
+- If `i` is initially less than 0: `min_time` remains unchanged, `i` is incremented until it becomes greater than or equal to 0.
+- If `i` is initially greater than or equal to 0: `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, `i` is incremented until it exceeds the length of array `b`.
+        i += 1
+        #This is the summary of unrolled_loop_1 and its total postcondition is : Output State: 
+- If `i` is initially less than 0: `min_time` remains unchanged, `i` is incremented until it becomes greater than or equal to 0.
+- If `i` is initially greater than or equal to 0: `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, `i` is incremented until it exceeds the length of array `b`.
+        #This is a summary of the  whole if block and its total postcondition is : If `i` is initially less than 0, `min_time` remains unchanged, and `i` is incremented until it becomes greater than or equal to 0. If `i` is initially greater than or equal to 0, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, and `i` is incremented until it exceeds the length of array `b`. After the loop execution, if `b[i] <= s`, `remaining_manapoints` is calculated as `s - b[i]`. If `j` is initially assigned the value of `k`, the loop will not be entered as `j` is required to be less than 0. Therefore, the output state will be that all variables remain the same, and the loop does not execute. `j` retains the initial value of `k`, and the values of remaining variables remain unchanged.
+        #This is the if part of the statement and its postcondition is : Output State: After the loop execution, if `j` is initially assigned the value of `k`, the loop will not be entered as `j` is required to be less than 0. Therefore, the output state will be that all variables remain the same, and the loop does not execute. `j` retains the initial value of `k`, and the values of remaining variables remain unchanged.
+        if b[i] <= s :
+            #This is simple command in if part and its postcondition is : If `i` is initially less than 0, `min_time` remains unchanged, `i` is incremented until it becomes greater than or equal to 0. If `i` is initially greater than or equal to 0, `min_time` is updated to the minimum value between the current `min_time` and `n * a[i]`, `i` is incremented until it exceeds the length of array `b`. `remaining_manapoints` is updated to `s - b[i]`.
+            remaining_manapoints = s - b[i]
+            #This is simple command in if part and its postcondition is : `j` is assigned the value of `k`
+            j = k
+            #This is a summary of the total loop and its postcondition is : Output State: After the loop execution, if `j` is initially assigned the value of `k`, the loop will not be entered as `j` is required to be less than 0. Therefore, the output state will be that all variables remain the same, and the loop does not execute. `j` retains the initial value of `k`, and the values of remaining variables remain unchanged.
+            while j < 0:
+                if d[j] <= remaining_manapoints:
+                    remaining_potions = max(0, n - c[j])
+                    time_with_both_spells = remaining_potions * a[i]
+                    min_time = min(min_time, time_with_both_spells)
+                else:
+                    break
+                
+                j += 1
+                # In the following comments we are unrolling the loop 3 times to help you understand its functionality
+                #This is the summary of unrolled_loop_1 and its total postcondition is : All variables remain integers. The value of `j` is incremented by 1.
+                #This is the summary of unrolled_loop_2 and its total postcondition is : All variables remain integers, the value of `j` is less than 0. If `d[j]` is less than or equal to `remaining_manapoints`, `remaining_potions` is set to the maximum value between 0 and the difference of `n` and `c[j]`. `time_with_both_spells` is calculated as `remaining_potions` multiplied by `a[i]`. `min_time` is updated to the minimum value between its current value and `time_with_both_spells`. If `d[j]` is greater than `remaining_manapoints`, the loop or if statement is exited. `j` is incremented by 1.
+                #This is the summary of unrolled_loop_3 and its total postcondition is : All variables remain integers, the value of `j` is less than 1. If `d[j]` is less than or equal to `remaining_manapoints`, `remaining_potions` is set to the maximum of 0 and the difference between `n` and `c[j]`. `time_with_both_spells` is computed as the product of `remaining_potions` and `a[i]`. `min_time` is updated to the minimum value between the current `min_time` and `time_with_both_spells`. If `d[j]` is greater than `remaining_manapoints`, the program breaks out of the loop.
+        #This is simple command in unrolled_loop_2 and its postcondition is : All variables remain the same, and the loop does not execute. `j` retains the initial value of `k`, and the values of remaining variables remain unchanged.
+        i += 1
+        #This is the summary of unrolled_loop_2 and its total postcondition is : All variables remain the same, and the loop does not execute. `j` retains the initial value of `k`, and the values of remaining variables remain unchanged.
+        #This is a summary of the  whole if block and its total postcondition is : `x` is an integer. If `x` is divisible by 2, then `x` is increased by 1. If `x` is not divisible by 2 but divisible by 3, `x` is decreased by 1. If `x` is not divisible by 2 or 3, `x` is doubled.
+        #This is the if part of the statement and its postcondition is : If `j` is equal to `k` and `k` is less than 0, the loop will not be executed. All variables will remain the same as the initial state. If `j` is greater than or equal to 0, the loop will execute until `j` becomes 0. The final state will depend on the conditions inside the loop as described in the examples above. After the loop, `j` will be equal to 0 or greater, and other variables will be updated based on the loop's logic.
+        if b[i] <= s :
+            #This is simple command in if part and its postcondition is : All variables remain the same, `j` retains the initial value of `k`, `remaining_manapoints` is calculated as `s - b[i]`, and the values of remaining variables remain unchanged
+            remaining_manapoints = s - b[i]
+            #This is simple command in if part and its postcondition is : All variables remain the same, `j` is equal to `k`, `remaining_manapoints` is calculated as `s - b[i]`
+            j = k
+            #This is a summary of the total loop and its postcondition is : If `j` is equal to `k` and `k` is less than 0, the loop will not be executed. All variables will remain the same as the initial state. If `j` is greater than or equal to 0, the loop will execute until `j` becomes 0. The final state will depend on the conditions inside the loop as described in the examples above. After the loop, `j` will be equal to 0 or greater, and other variables will be updated based on the loop's logic.
+            while j < 0:
+                if d[j] <= remaining_manapoints:
+                    remaining_potions = max(0, n - c[j])
+                    time_with_both_spells = remaining_potions * a[i]
+                    min_time = min(min_time, time_with_both_spells)
+                else:
+                    break
+                
+                j += 1
+                # In the following comments we are unrolling the loop 3 times to help you understand its functionality
+                #This is the summary of unrolled_loop_1 and its total postcondition is : All variables remain the same. `j` is now equal to `k + 1`.
+                #This is the summary of unrolled_loop_2 and its total postcondition is : `num` is either updated based on the conditions described above, and `j` is increased by 1
+                #This is the summary of unrolled_loop_3 and its total postcondition is : `d` is a list, `remaining_manapoints`, `n`, `c`, `a`, `min_time`, `remaining_potions`, `time_with_both_spells` are integers. If `d[j]` is less than or equal to `remaining_manapoints`, then `remaining_potions` is the maximum of 0 and the difference between `n` and `c[j]`, `time_with_both_spells` is the product of `remaining_potions` and `a[i]`, and `min_time` is updated to the minimum value between the previous `min_time` and `time_with_both_spells`. If `d[j]` is not less than or equal to `remaining_manapoints`, the loop breaks. `j` is less than or equal to 2.
+        #This is simple command in unrolled_loop_3 and its postcondition is : `x` is an integer that has been modified based on the given conditions
+        i += 1
+        #This is the summary of unrolled_loop_3 and its total postcondition is : `x` is an integer that has been modified based on the given conditions
+    #This is return statement and its postcondition is : `min_time` is the updated minimum value based on the conditions, `i` is equal to the length of array `b`, and other variables retain their final values
+    return min_time
+`min_time` is the updated minimum value based on the conditions, `i` is equal to the length of array `b`, and other variables retain their final values
+
