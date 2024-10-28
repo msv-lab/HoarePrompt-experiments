@@ -7,7 +7,7 @@ import argparse
 import shutil
 import subprocess
 from pathlib import Path
-from hoareprompt import compute_postcondition, check_entailment, extract_precondition
+from hoareprompt import compute_postcondition, check_entailment, extract_precondition, compute_postcondition_naive
 from importlib.metadata import version
 import importlib.util
 from src.file_io import load_json
@@ -42,7 +42,7 @@ def main(data: dict, config: dict, logger, model, datafile):
    # Set up CSV logger header for recording task results
     columns = [
         "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "Test Result",
-        f"{config['postcondition-mode']} Correctness", f"{config['postcondition-mode']} Post", "original correctness", "data file"]
+        "Correctness", "Post", "original correctness", "naive correctness",   "data file"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -112,9 +112,11 @@ def main(data: dict, config: dict, logger, model, datafile):
         pre_directory = detail_log_directory / "extract-precondition"
         post_directory = detail_log_directory / "compute-postconditon"
         check_directory = detail_log_directory / "check-entailment"
+        naive_directory = detail_log_directory / "naive"
         pre_directory.mkdir(parents=True, exist_ok=True)
         post_directory.mkdir(parents=True, exist_ok=True)
         check_directory.mkdir(parents=True, exist_ok=True)
+        naive_directory.mkdir(parents=True, exist_ok=True)
 
         # Extract precondition using HoarePrompt
         precondition = extract_precondition(description, code, config, pre_directory)
@@ -156,11 +158,31 @@ def main(data: dict, config: dict, logger, model, datafile):
         #     else:
         #         fp += 1
 
+        try:
+            # Check entailment using naive approach
+            naive_result = compute_postcondition_naive(description, code, config, naive_directory)
+        except Exception as e:
+            # Handle any errors like API issues and log them also add the task to the failed tasks list
+            failed_tasks.append({
+                "task_id": task_id,
+                "model_created": model_created,
+                "dataset": dataset,
+                "model_run": model,
+                "code": code,
+                "fail_reason": f"Error: {e}"
+            })
+
+            logger.error(f"Error: {e}")
+            break
+
+
+
         # save to log dir
         save_to_file(description, detail_log_directory / "description.txt")
         save_to_file(code, detail_log_directory / "program.py")
         save_to_file(precondition, detail_log_directory / "precondition.txt")
         save_to_file(post, detail_log_directory / "postcondition.txt")
+        save_to_file(naive_result, detail_log_directory / "naive.txt")
 
         # write to logger
         logger.debug(f"Dataset: {dataset}")
@@ -191,6 +213,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             f"{config['postcondition-mode']} Correctness": result,
             f"{config['postcondition-mode']} Post": post,
             "original correctness": original_correctness,
+            "naive correctness": naive_result,
             "data file": datafile,
         }
 
