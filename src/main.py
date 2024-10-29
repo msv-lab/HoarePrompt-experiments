@@ -17,6 +17,9 @@ from src.preprocessing import replace_function_name, count_function_defs
  # Writes the provided content to a specified file
 def save_to_file(content, file_path):
     with open(file_path, 'w') as file:
+        #if content i boolean, convert it to string
+        if isinstance(content, bool):
+            content = str(content)
         file.write(content)
 
 # Calculates the Matthews Correlation Coefficient for evaluating binary classification results
@@ -210,8 +213,8 @@ def main(data: dict, config: dict, logger, model, datafile):
             "model_run": model,
             "description": description,
             "Code": code,
-            f"{config['postcondition-mode']} Correctness": result,
-            f"{config['postcondition-mode']} Post": post,
+            "Correctness": result,
+            "Post": post,
             "original correctness": original_correctness,
             "naive correctness": naive_result,
             "data file": datafile,
