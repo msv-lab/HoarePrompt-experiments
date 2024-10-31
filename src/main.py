@@ -96,20 +96,20 @@ def main(data: dict, config: dict, logger, model, datafile):
                 "fail_reason": f"Parse error: {e}"
             })
             continue
-
-        # if mult functions, skip this task
-        if count_function_defs(code) > 1:
-            logger.debug(f"Task {task_id} skip due to mult functions.\n\n\n")
-            # Add this task to a failed tasks list with the fail reason being multiple functions error
-            failed_tasks.append({
-                "task_id": task_id,
-                "model_created": model_created,
-                "dataset": dataset,
-                "model_run": model,
-                "code": code,
-                "fail_reason": "Multiple functions error"
-            })
-            continue
+        #We added handling for multiple function
+        # # if mult functions, skip this task
+        # if count_function_defs(code) > 1:
+        #     logger.debug(f"Task {task_id} skip due to mult functions.\n\n\n")
+        #     # Add this task to a failed tasks list with the fail reason being multiple functions error
+        #     failed_tasks.append({
+        #         "task_id": task_id,
+        #         "model_created": model_created,
+        #         "dataset": dataset,
+        #         "model_run": model,
+        #         "code": code,
+        #         "fail_reason": "Multiple functions error"
+        #     })
+        #     continue
         # Create log directories for saving the results like precondition, postcondition, entailment check
         detail_log_directory = logger.log_dir  / task_id / model_created
         pre_directory = detail_log_directory / "extract-precondition"
