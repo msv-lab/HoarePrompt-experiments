@@ -6,13 +6,9 @@ import os
 def preprocess_correctness(value, task_id):
     # Normalize string by removing spaces and converting to lowercase
     normalized_value = str(value).strip().lower()
-    if normalized_value == "correct":
+    if normalized_value in ["correct", "true"]:
         return True
-    elif normalized_value == "incorrect":
-        return False
-    elif normalized_value == "true":
-        return True 
-    elif normalized_value == "false":
+    elif normalized_value in ["incorrect", "false"]:
         return False
     else:
         print(f"Error: Task ID {task_id} has an unrecognized correctness value '{value}'")
@@ -40,6 +36,14 @@ def analyze_correctness(file_path):
     correct_agreement_pct = float((correct_agreement / total_rows) * 100 if total_rows > 0 else 0)
     naive_agreement_pct = float((naive_agreement / total_rows) * 100 if total_rows > 0 else 0)
 
+    # False positives and false negatives for naive correctness
+    false_positives_naive = int(((valid_df['original correctness'] == True) & (valid_df['naive correctness'] == False)).sum())
+    false_negatives_naive = int(((valid_df['original correctness'] == False) & (valid_df['naive correctness'] == True)).sum())
+
+    # False positives and false negatives for correctness
+    false_positives_correctness = int(((valid_df['original correctness'] == True) & (valid_df['Correctness'] == False)).sum())
+    false_negatives_correctness = int(((valid_df['original correctness'] == False) & (valid_df['Correctness'] == True)).sum())
+
     # Cases where naive_correctness and correctness differ
     naive_correctness_diff = valid_df[valid_df['naive correctness'] != valid_df['Correctness']]
 
@@ -65,41 +69,75 @@ def analyze_correctness(file_path):
     # Additional Analysis: Difference in agreement rates
     difference_in_agreement = float(correct_agreement_pct - naive_agreement_pct)
 
-    # Compile report with native Python types
+    # Compile report with explanations
     analysis_report = {
-        "total_valid_rows": total_rows,
+        "total_valid_rows": {
+            "value": total_rows,
+            "description": "Total number of valid rows after preprocessing and removing invalid entries."
+        },
         "original_correctness_agreement": {
             "correctness": {
                 "count": correct_agreement,
-                "percentage": correct_agreement_pct
+                "percentage": correct_agreement_pct,
+                "description": "Number and percentage of times 'Correctness' agrees with 'original correctness'."
             },
             "naive_correctness": {
                 "count": naive_agreement,
-                "percentage": naive_agreement_pct
+                "percentage": naive_agreement_pct,
+                "description": "Number and percentage of times 'naive correctness' agrees with 'original correctness'."
+            }
+        },
+        "false_positives": {
+            "naive_correctness": {
+                "count": false_positives_naive,
+                "description": "Number of cases where 'original correctness' is True but 'naive correctness' is False."
+            },
+            "correctness": {
+                "count": false_positives_correctness,
+                "description": "Number of cases where 'original correctness' is True but 'Correctness' is False."
+            }
+        },
+        "false_negatives": {
+            "naive_correctness": {
+                "count": false_negatives_naive,
+                "description": "Number of cases where 'original correctness' is False but 'naive correctness' is True."
+            },
+            "correctness": {
+                "count": false_negatives_correctness,
+                "description": "Number of cases where 'original correctness' is False but 'Correctness' is True."
             }
         },
         "naive_correctness_vs_correctness_diff": {
+            "description": "Analysis of cases where 'naive correctness' and 'Correctness' differ.",
             "naive_correctness_with_original_in_diff": {
                 "count": naive_correctness_with_original_in_diff,
-                "percentage": naive_correctness_with_original_in_diff_pct
+                "percentage": naive_correctness_with_original_in_diff_pct,
+                "description": "Number and percentage of times 'naive correctness' agrees with 'original correctness' when 'naive correctness' and 'Correctness' differ."
             },
             "correctness_with_original_in_diff": {
                 "count": correctness_with_original_in_diff,
-                "percentage": correctness_with_original_in_diff_pct
+                "percentage": correctness_with_original_in_diff_pct,
+                "description": "Number and percentage of times 'Correctness' agrees with 'original correctness' when 'naive correctness' and 'Correctness' differ."
             }
         },
         "naive_correctness_vs_correctness_same": {
+            "description": "Analysis of cases where 'naive correctness' and 'Correctness' are the same.",
             "same_correctness_original_agreement": {
                 "count": same_correctness_original_agreement,
-                "percentage": same_correctness_original_agreement_pct
+                "percentage": same_correctness_original_agreement_pct,
+                "description": "Number and percentage of times both 'naive correctness' and 'Correctness' agree with 'original correctness' when they are the same."
             },
             "same_correctness_original_disagreement": {
                 "count": same_correctness_original_disagreement,
-                "percentage": same_correctness_original_disagreement_pct
+                "percentage": same_correctness_original_disagreement_pct,
+                "description": "Number and percentage of times both 'naive correctness' and 'Correctness' do not agree with 'original correctness' when they are the same."
             }
         },
         "additional_analysis": {
-            "difference_in_agreement_with_original": difference_in_agreement
+            "difference_in_agreement_with_original": {
+                "value": difference_in_agreement,
+                "description": "Difference in agreement percentage between 'Correctness' and 'naive correctness' with 'original correctness'."
+            }
         }
     }
 
