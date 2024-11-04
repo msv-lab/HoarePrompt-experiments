@@ -2,9 +2,9 @@ import pandas as pd
 import sys
 import json
 import os
+import math
 
 def preprocess_correctness(value, task_id):
-    # Normalize string by removing spaces and converting to lowercase
     normalized_value = str(value).strip().lower()
     if normalized_value in ["correct", "true"]:
         return True
@@ -14,62 +14,51 @@ def preprocess_correctness(value, task_id):
         print(f"Error: Task ID {task_id} has an unrecognized correctness value '{value}'")
         return None
 
-def analyze_correctness(file_path):
-    # Load CSV file
-    df = pd.read_csv(file_path)
+def calculate_mcc(tp, tn, fp, fn):
+    numerator = (tp * tn) - (fp * fn)
+    denominator = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    return numerator / denominator if denominator != 0 else 0
 
-    # Preprocess columns and handle invalid values
+def analyze_correctness(file_path):
+    df = pd.read_csv(file_path)
     df['Correctness'] = df.apply(lambda row: preprocess_correctness(row['Correctness'], row['Task ID']), axis=1)
     df['naive correctness'] = df.apply(lambda row: preprocess_correctness(row['naive correctness'], row['Task ID']), axis=1)
     df['original correctness'] = df.apply(lambda row: preprocess_correctness(row['original correctness'], row['Task ID']), axis=1)
-
-    # Filter out rows with None values due to unrecognized correctness entries
     valid_df = df.dropna(subset=['Correctness', 'naive correctness', 'original correctness'])
-
-    # Basic info
     total_rows = int(len(valid_df))
 
-    # Original correctness agreement with correctness and naive_correctness
     correct_agreement = int((valid_df['original correctness'] == valid_df['Correctness']).sum())
     naive_agreement = int((valid_df['original correctness'] == valid_df['naive correctness']).sum())
-
     correct_agreement_pct = float((correct_agreement / total_rows) * 100 if total_rows > 0 else 0)
     naive_agreement_pct = float((naive_agreement / total_rows) * 100 if total_rows > 0 else 0)
 
-    # False positives and false negatives for naive correctness
-    false_positives_naive = int(((valid_df['original correctness'] == True) & (valid_df['naive correctness'] == False)).sum())
-    false_negatives_naive = int(((valid_df['original correctness'] == False) & (valid_df['naive correctness'] == True)).sum())
+    tp_correctness = int(((valid_df['original correctness'] == True) & (valid_df['Correctness'] == True)).sum())
+    tn_correctness = int(((valid_df['original correctness'] == False) & (valid_df['Correctness'] == False)).sum())
+    fp_correctness = int(((valid_df['original correctness'] == False) & (valid_df['Correctness'] == True)).sum())
+    fn_correctness = int(((valid_df['original correctness'] == True) & (valid_df['Correctness'] == False)).sum())
+    
+    tp_naive = int(((valid_df['original correctness'] == True) & (valid_df['naive correctness'] == True)).sum())
+    tn_naive = int(((valid_df['original correctness'] == False) & (valid_df['naive correctness'] == False)).sum())
+    fp_naive = int(((valid_df['original correctness'] == False) & (valid_df['naive correctness'] == True)).sum())
+    fn_naive = int(((valid_df['original correctness'] == True) & (valid_df['naive correctness'] == False)).sum())
+    
+    mcc_correctness = calculate_mcc(tp_correctness, tn_correctness, fp_correctness, fn_correctness)
+    mcc_naive = calculate_mcc(tp_naive, tn_naive, fp_naive, fn_naive)
 
-    # False positives and false negatives for correctness
-    false_positives_correctness = int(((valid_df['original correctness'] == True) & (valid_df['Correctness'] == False)).sum())
-    false_negatives_correctness = int(((valid_df['original correctness'] == False) & (valid_df['Correctness'] == True)).sum())
-
-    # Cases where naive_correctness and correctness differ
     naive_correctness_diff = valid_df[valid_df['naive correctness'] != valid_df['Correctness']]
-
-    # Agreement of naive_correctness with original_correctness in cases of difference
     naive_correctness_with_original_in_diff = int((naive_correctness_diff['original correctness'] == naive_correctness_diff['naive correctness']).sum())
     naive_correctness_with_original_in_diff_pct = float((naive_correctness_with_original_in_diff / len(naive_correctness_diff)) * 100 if len(naive_correctness_diff) > 0 else 0)
-
-    # Agreement of correctness with original_correctness in cases of difference
     correctness_with_original_in_diff = int((naive_correctness_diff['original correctness'] == naive_correctness_diff['Correctness']).sum())
     correctness_with_original_in_diff_pct = float((correctness_with_original_in_diff / len(naive_correctness_diff)) * 100 if len(naive_correctness_diff) > 0 else 0)
 
-    # Cases where naive_correctness and correctness are the same
     naive_correctness_same = valid_df[valid_df['naive correctness'] == valid_df['Correctness']]
-
-    # Agreement with original_correctness in cases where naive_correctness and correctness are the same
     same_correctness_original_agreement = int((naive_correctness_same['original correctness'] == naive_correctness_same['Correctness']).sum())
     same_correctness_original_disagreement = int(len(naive_correctness_same) - same_correctness_original_agreement)
-
-    # Calculate percentages
     same_correctness_original_agreement_pct = float((same_correctness_original_agreement / len(naive_correctness_same)) * 100 if len(naive_correctness_same) > 0 else 0)
     same_correctness_original_disagreement_pct = float((same_correctness_original_disagreement / len(naive_correctness_same)) * 100 if len(naive_correctness_same) > 0 else 0)
 
-    # Additional Analysis: Difference in agreement rates
     difference_in_agreement = float(correct_agreement_pct - naive_agreement_pct)
 
-    # Compile report with explanations
     analysis_report = {
         "total_valid_rows": {
             "value": total_rows,
@@ -79,31 +68,33 @@ def analyze_correctness(file_path):
             "correctness": {
                 "count": correct_agreement,
                 "percentage": correct_agreement_pct,
-                "description": "Number and percentage of times 'Correctness' agrees with 'original correctness'."
+                "mcc": mcc_correctness,
+                "description": "Number, percentage, and MCC for 'Correctness' agreement with 'original correctness'."
             },
             "naive_correctness": {
                 "count": naive_agreement,
                 "percentage": naive_agreement_pct,
-                "description": "Number and percentage of times 'naive correctness' agrees with 'original correctness'."
+                "mcc": mcc_naive,
+                "description": "Number, percentage, and MCC for 'naive correctness' agreement with 'original correctness'."
             }
         },
         "false_positives": {
             "naive_correctness": {
-                "count": false_positives_naive,
+                "count": fp_naive,
                 "description": "Number of cases where 'original correctness' is True but 'naive correctness' is False."
             },
             "correctness": {
-                "count": false_positives_correctness,
+                "count": fp_correctness,
                 "description": "Number of cases where 'original correctness' is True but 'Correctness' is False."
             }
         },
         "false_negatives": {
             "naive_correctness": {
-                "count": false_negatives_naive,
+                "count": fn_naive,
                 "description": "Number of cases where 'original correctness' is False but 'naive correctness' is True."
             },
             "correctness": {
-                "count": false_negatives_correctness,
+                "count": fn_correctness,
                 "description": "Number of cases where 'original correctness' is False but 'Correctness' is True."
             }
         },
@@ -141,11 +132,9 @@ def analyze_correctness(file_path):
         }
     }
 
-    # Print report to console
     print("Analysis Report")
     print(json.dumps(analysis_report, indent=4))
 
-    # Save report as JSON
     output_file_path = os.path.join(os.path.dirname(file_path), "analysis_report.json")
     with open(output_file_path, "w") as json_file:
         json.dump(analysis_report, json_file, indent=4)
