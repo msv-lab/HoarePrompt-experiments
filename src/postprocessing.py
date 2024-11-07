@@ -24,26 +24,45 @@ def analyze_correctness(file_path):
     df['Correctness'] = df.apply(lambda row: preprocess_correctness(row['Correctness'], row['Task ID']), axis=1)
     df['naive correctness'] = df.apply(lambda row: preprocess_correctness(row['naive correctness'], row['Task ID']), axis=1)
     df['original correctness'] = df.apply(lambda row: preprocess_correctness(row['original correctness'], row['Task ID']), axis=1)
-    valid_df = df.dropna(subset=['Correctness', 'naive correctness', 'original correctness'])
+    df['annotated_correctness'] = df.apply(lambda row: preprocess_correctness(row['annotated correctness'], row['Task ID']), axis=1)
+    df['naive_correctness_no_fsl'] = df.apply(lambda row: preprocess_correctness(row['naive no fsl correctness'], row['Task ID']), axis=1)
+    valid_df = df.dropna(subset=['Correctness', 'naive correctness', 'original correctness', 'annotated_correctness', 'naive_correctness_no_fsl'])
     total_rows = int(len(valid_df))
 
     correct_agreement = int((valid_df['original correctness'] == valid_df['Correctness']).sum())
     naive_agreement = int((valid_df['original correctness'] == valid_df['naive correctness']).sum())
     correct_agreement_pct = float((correct_agreement / total_rows) * 100 if total_rows > 0 else 0)
     naive_agreement_pct = float((naive_agreement / total_rows) * 100 if total_rows > 0 else 0)
+    correct_annotated_agreement = int((valid_df['original correctness'] == valid_df['annotated_correctness']).sum())
+    correct_annotated_agreement_pct = float((correct_annotated_agreement / total_rows) * 100 if total_rows > 0 else 0)
+    naive_no_fsl_agreement = int((valid_df['original correctness'] == valid_df['naive_correctness_no_fsl']).sum())
+    naive_no_fsl_agreement_pct = float((naive_no_fsl_agreement / total_rows) * 100 if total_rows > 0 else 0)
+    
 
     tp_correctness = int(((valid_df['original correctness'] == True) & (valid_df['Correctness'] == True)).sum())
     tn_correctness = int(((valid_df['original correctness'] == False) & (valid_df['Correctness'] == False)).sum())
     fp_correctness = int(((valid_df['original correctness'] == False) & (valid_df['Correctness'] == True)).sum())
     fn_correctness = int(((valid_df['original correctness'] == True) & (valid_df['Correctness'] == False)).sum())
+
+    tp_correctness_annotated = int(((valid_df['original correctness'] == True) & (valid_df['annotated_correctness'] == True)).sum())
+    tn_correctness_annotated = int(((valid_df['original correctness'] == False) & (valid_df['annotated_correctness'] == False)).sum())
+    fp_correctness_annotated = int(((valid_df['original correctness'] == False) & (valid_df['annotated_correctness'] == True)).sum())
+    fn_correctness_annotated = int(((valid_df['original correctness'] == True) & (valid_df['annotated_correctness'] == False)).sum())
     
     tp_naive = int(((valid_df['original correctness'] == True) & (valid_df['naive correctness'] == True)).sum())
     tn_naive = int(((valid_df['original correctness'] == False) & (valid_df['naive correctness'] == False)).sum())
     fp_naive = int(((valid_df['original correctness'] == False) & (valid_df['naive correctness'] == True)).sum())
     fn_naive = int(((valid_df['original correctness'] == True) & (valid_df['naive correctness'] == False)).sum())
+
+    tp_naive_no_fsl = int(((valid_df['original correctness'] == True) & (valid_df['naive_correctness_no_fsl'] == True)).sum())
+    tn_naive_no_fsl = int(((valid_df['original correctness'] == False) & (valid_df['naive_correctness_no_fsl'] == False)).sum())
+    fp_naive_no_fsl = int(((valid_df['original correctness'] == False) & (valid_df['naive_correctness_no_fsl'] == True)).sum())
+    fn_naive_no_fsl = int(((valid_df['original correctness'] == True) & (valid_df['naive_correctness_no_fsl'] == False)).sum())
     
     mcc_correctness = calculate_mcc(tp_correctness, tn_correctness, fp_correctness, fn_correctness)
     mcc_naive = calculate_mcc(tp_naive, tn_naive, fp_naive, fn_naive)
+    mcc_correctness_annotated = calculate_mcc(tp_correctness_annotated, tn_correctness_annotated, fp_correctness_annotated, fn_correctness_annotated)
+    mcc_naive_no_fsl = calculate_mcc(tp_naive_no_fsl, tn_naive_no_fsl, fp_naive_no_fsl, fn_naive_no_fsl)
 
     naive_correctness_diff = valid_df[valid_df['naive correctness'] != valid_df['Correctness']]
     naive_correctness_with_original_in_diff = int((naive_correctness_diff['original correctness'] == naive_correctness_diff['naive correctness']).sum())
@@ -76,6 +95,18 @@ def analyze_correctness(file_path):
                 "percentage": naive_agreement_pct,
                 "mcc": mcc_naive,
                 "description": "Number, percentage, and MCC for 'naive correctness' agreement with 'original correctness'."
+            },
+            "annotated_correctness": {
+                "count": correct_annotated_agreement,
+                "percentage": correct_annotated_agreement_pct,
+                "mcc": mcc_correctness_annotated,
+                "description": "Number, percentage, and MCC for 'annotated correctness' agreement with 'original correctness'."
+            },
+            "naive_no_fsl_correctness": {
+                "count": naive_no_fsl_agreement,
+                "percentage": naive_no_fsl_agreement_pct,
+                "mcc": mcc_naive_no_fsl,
+                "description": "Number, percentage, and MCC for 'naive no fsl correctness' agreement with 'original correctness'."
             }
         },
         "false_positives": {
