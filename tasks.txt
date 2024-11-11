@@ -1,0 +1,16 @@
+def func_1(list1, list2):
+    set1 = set(list1)
+    #State of the program here: list1 is a list, list2 is a list, set1 is a set created from list1
+    set2 = set(list2)
+    #State of the program here: `list1` is a list, `list2` is a list, `set1` is a set created from `list1`, `set2` is a set created from `list2`
+    diff_elements = set1.symmetric_difference(set2)
+    #State of the program here: `list1` is a list, `list2` is a list, `set1` is a set created from `list1`, `set2` is a set created from `list2`, and `diff_elements` is a set containing elements that are in `list1` or `list2` but not in both
+    result_list = list(diff_elements)
+    #State of the program here: `list1` is a list, `list2` is a list, `set1` is a set created from `list1`, `set2` is a set created from `list2`, `diff_elements` is a set containing elements that are in `list1` or `list2` but not in both, and `result_list` is a list containing elements that are in `list1` or `list2` but not in both.
+    result_list.sort(key=lambda x: (list1 + list2).index(x))
+    #State of the program here: `list1` is a list, `list2` is a list, `set1` is a set created from `list1`, `set2` is a set created from `list2`, `diff_elements` is a set containing elements that are in `list1` or `list2` but not in both, `result_list` is a sorted list containing elements that are in `list1` or `list2` but not in both, sorted by their index in `list1 + list2`.
+    return result_list
+    #State of the program after the return statement: `list1` is a list, `list2` is a list, `set1` is a set created from `list1`, `set2` is a set created from `list2`, `diff_elements` is a set containing elements that are in `list1` or `list2` but not in both, `result_list` is a sorted list containing elements that are in `list1` or `list2` but not in both, sorted by their index in `list1 + list2`, and the function returns `result_list`.
+#Overall this is what the function does: The function accepts two parameters list1 and list2, returns a sorted list of elements that are unique to either list1 or list2, ordered by their appearance in the combined list.
+`list1` is a list, `list2` is a list, `set1` is a set created from `list1`, `set2` is a set created from `list2`, `diff_elements` is a set containing elements that are in `list1` or `list2` but not in both, `result_list` is a sorted list containing elements that are in `list1` or `list2` but not in both, sorted by their index in `list1 + list2`, and the function returns `result_list`.
+

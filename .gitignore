@@ -1,3 +1,5 @@
 # Default ignored files
 .idea/
 logs/
+hoareprompt-env/
+src/__pycache__
