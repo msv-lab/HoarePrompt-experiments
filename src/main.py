@@ -44,7 +44,7 @@ def main(data: dict, config: dict, logger, model, datafile):
 
     columns = [
         "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "Test Result",
-        "Correctness", "Post", "original correctness", "naive correctness", "annotated correctness", "naive no fsl correctness" , "data file"]
+        "Correctness", "Post", "original correctness", "naive correctness", "annotated correctness", "annotated correctness simple", "naive no fsl correctness" , "data file"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -55,6 +55,9 @@ def main(data: dict, config: dict, logger, model, datafile):
     config_naive["assessment-mode"] = "naive"
     config_annotated = config.copy()
     config_annotated["annotated"] = True
+    config_annotated["annotated-type"]="complex"
+    config_annotated_simple = config_annotated.copy()
+    config_annotated_simple["annotated-type"]="simple"
     config_naive_no_fsl = config_naive.copy()
     config_naive_no_fsl["fsl"] = False
     # This is the main loop where the work is done, it tterates over each task in the provided data
@@ -130,6 +133,8 @@ def main(data: dict, config: dict, logger, model, datafile):
         naive_directory.mkdir(parents=True, exist_ok=True)
         detail_log_directory_annotated = logger.log_dir  /  task_id/ f"{task_id}_annotated" / model_created
         detail_log_directory_annotated.mkdir(parents=True, exist_ok=True)
+        detail_log_directory_annotated_simple = logger.log_dir  /  task_id/ f"{task_id}_annotated_simple" / model_created
+        detail_log_directory_annotated_simple.mkdir(parents=True, exist_ok=True)
         detail_log_directory_naive = logger.log_dir  / task_id/  f"{task_id}_naive" / model_created
         detail_log_directory_naive.mkdir(parents=True, exist_ok=True)
         detail_log_directory_naive_no_fsl = logger.log_dir  / task_id/  f"{task_id}_naive_no_fsl" / model_created
@@ -201,6 +206,29 @@ def main(data: dict, config: dict, logger, model, datafile):
                 "code": code,
                 "fail_reason": f"Error: {e}",
                 "type_of_run": "hoareprompt annotated"
+            })
+
+            logger.error(f"Error: {e}")
+            break
+
+        try:
+            # Compute postcondition using the precondition and code bycinvoking hoareprompt
+            # post = compute_postcondition(precondition, replaced_code, config, post_directory)
+
+            # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
+            
+            result_annotated_simple=assess(description, code, task_id, config_annotated_simple, detail_log_directory_annotated_simple, None)
+            # result = check_entailment(description, post, code, task_id, config, check_directory)
+        except Exception as e:
+            # Handle any errors like API issues and log them also add the task to the failed tasks list
+            failed_tasks.append({
+                "task_id": task_id,
+                "model_created": model_created,
+                "dataset": dataset,
+                "model_run": model,
+                "code": code,
+                "fail_reason": f"Error: {e}",
+                "type_of_run": "hoareprompt annotated simple"
             })
 
             logger.error(f"Error: {e}")
@@ -287,6 +315,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             "original correctness": original_correctness,
             "naive correctness": naive_result,
             "annotated correctness": result_annotated,
+            "annotated correctness simple": result_annotated_simple,
             "naive no fsl correctness": result_naive_no_fsl,
             "data file": datafile,
         }
