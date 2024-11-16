@@ -1,36 +1,9 @@
-def count(n, k, dp):
-    if (k == 0) :
-        return 0
-        #State of the program after the return statement: Precondition: n is a non-negative integer, k is a positive integer, dp is a dictionary to store calculated values.
-    #State of the program after the if block has been executed: *n is a non-negative integer, k is a positive integer, dp is a dictionary to store calculated values. If k is equal to 0, the function returns 0.
-    if ((n, k) in dp) :
-        return dp[n, k]
-        #State of the program after the return statement: n is a non-negative integer, k is a positive integer, dp is a dictionary to store calculated values. If k is equal to 0, the function returns 0.
-    #State of the program after the if block has been executed: *n is a non-negative integer, k is a positive integer, dp is a dictionary to store calculated values. If (n, k) is already in dp, the function returns the corresponding value stored in dp. If k is 0, the function returns 0. Otherwise, no action is taken.
-    if (n < 10 ** k) :
-        dp[n, k] = n
-    else :
-        dp[n, k] = 9
-        for i in range(1, k):
-            dp[n, k] += 9 * 10 ** (i - 1) * (10 ** (k - i) - 10 ** (i - 1))
-            
-        #State of the program after the  for loop has been executed: If k is equal to 1 or less, the loop does not execute and dp[(n, k)] remains 9. If k is greater than 1, dp[(n, k)] is updated to a new value after the loop executes. i is the number of times the loop has executed, ranging from 1 to k-1.
-        dp[n, k] += (10 ** (k - 1) - 10 ** (k - 2)) * (n // 10 ** (k - 1) - 1)
-        dp[n, k] %= MOD
-    #State of the program after the if-else block has been executed: *`n` is a non-negative integer, `k` is a positive integer, `dp` is a dictionary to store calculated values. If (n, k) is already in dp, the function returns the corresponding value stored in dp. If k is 0, the function returns 0. After the execution of the code, dp[n, k] is assigned the value of n if n is less than 10
-    return dp[n, k]
-    #State of the program after the return statement: `n` is a non-negative integer, `k` is a positive integer, `dp` is a dictionary to store calculated values. If (n, k) is already in dp, the function returns the corresponding value stored in dp. If k is 0, the function returns 0. After the execution of the code, dp[n, k] is assigned the value of n if n is less than 10
-#Overall this is what the function does: The function `count` accepts three parameters: `n`, `k`, and `dp`. `n` is a non-negative integer, `k` is a positive integer, and `dp` is a dictionary to store calculated values. 
-#
-#After executing the function body, the function behaves as follows:
-#- Case 1: If `k` is equal to 0, the function returns 0.
-#- Case 2: If (n, k) is already in `dp`, the function returns the corresponding value stored in `dp`. If `k` is 0, the function returns 0. Otherwise, no action is taken.
-#- Case 3: If (n, k) is already in `dp`, the function returns the corresponding value stored in `dp`. If `k` is 0, the function returns 0. After the execution of the code, dp[n, k] is assigned the value of `n` if `n` is less than 10.
-#
-#Therefore, the functionality of the function `count` is to accept non-negative integer `n`, positive integer `k`, and a dictionary `dp` to store calculated values. The function returns 0 if `k` is 0. If (n, k) is already in `dp`, it returns the corresponding value. If `k` is not 0 and (n, k) is not in `dp`, it assigns the value of `n` to dp[n, k] if `n` is less than 10.
-Case_1: *n is a non-negative integer, k is a positive integer, dp is a dictionary to store calculated values. If k is equal to 0, the function returns 0.
-
-Case_2: *n is a non-negative integer, k is a positive integer, dp is a dictionary to store calculated values. If (n, k) is already in dp, the function returns the corresponding value stored in dp. If k is 0, the function returns 0. Otherwise, no action is taken.
-
-Case_3: `n` is a non-negative integer, `k` is a positive integer, `dp` is a dictionary to store calculated values. If (n, k) is already in dp, the function returns the corresponding value stored in dp. If k is 0, the function returns 0. After the execution of the code, dp[n, k] is assigned the value of n if n is less than 10
+def get_location(apartment):
+    block = (apartment - 1) // (m * k) + 1
+    floor_within_block = (apartment - 1) % (m * k)
+    floor = floor_within_block // k + 1
+    return block, floor
+    #The program returns the values of block and floor based on the calculations involving n, m, k, a, b, and the derived values of floor_within_block and floor.
+#Overall this is what the function does: The function accepts a parameter apartment and returns the values of block and floor based on calculations involving the dimensions of the building and the apartment number.
+The program returns the values of block and floor based on the calculations involving n, m, k, a, b, and the derived values of floor_within_block and floor.
 
