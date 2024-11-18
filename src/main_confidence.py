@@ -114,7 +114,7 @@ def main(data: dict, config: dict, logger, model, datafile):
         #     })
         #     continue
         # Create log directories for saving the results like precondition, postcondition, entailment check
-        detail_log_directory = logger.log_dir  / task_id/ f"{task_id}_normal" / model_created
+        detail_log_directory = logger.log_dir  / task_id/ f"{task_id}_confidence" / model_created
         pre_directory = detail_log_directory / "extract-precondition"
         post_directory = detail_log_directory / "compute-postconditon"
         check_directory = detail_log_directory / "check-entailment"
@@ -133,187 +133,189 @@ def main(data: dict, config: dict, logger, model, datafile):
         # detail_log_directory_naive_no_fsl.mkdir(parents=True, exist_ok=True)
         # # Extract precondition using HoarePrompt
         # precondition = extract_precondition(description, code, config, pre_directory)
-        try:
-            # Compute postcondition using the precondition and code bycinvoking hoareprompt
-            # post = compute_postcondition(precondition, replaced_code, config, post_directory)
-
-            # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
-            
-            result1, confidence1, result2, confidence2=assess(description, code, task_id, config, detail_log_directory, None)
-            # result = check_entailment(description, post, code, task_id, config, check_directory)
-        except Exception as e:
-            # Handle any errors like API issues and log them also add the task to the failed tasks list
-            failed_tasks.append({
-                "task_id": task_id,
-                "model_created": model_created,
-                "dataset": dataset,
-                "model_run": model,
-                "code": code,
-                "fail_reason": f"Error: {e}",
-                "type_of_run": "naive no fsl"
-            })
-
-            #if an nexception occurs go to the next task
-            break
-
-        # try:
-        #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
-        #     # post = compute_postcondition(precondition, replaced_code, config, post_directory)
-
-        #     # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
-        #     total += 1
-        #     print(f"Running task {task_id} with log directory {detail_log_directory}")
-        #     result=assess(description, code, task_id, config, detail_log_directory, None)
-        #     # result = check_entailment(description, post, code, task_id, config, check_directory)
-        # except Exception as e:
-        #     # Handle any errors like API issues and log them also add the task to the failed tasks list
-        #     failed_tasks.append({
-        #         "task_id": task_id,
-        #         "model_created": model_created,
-        #         "dataset": dataset,
-        #         "model_run": model,
-        #         "code": code,
-        #         "fail_reason": f"Error: {e}",
-        #         "type_of_run": "hoareprompt"
-        #     })
-
-        #     logger.error(f"Error: {e}")
-        #     break
-
-        # try:
-        #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
-        #     # post = compute_postcondition(precondition, replaced_code, config, post_directory)
-
-        #     # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
-            
-        #     result_annotated=assess(description, code, task_id, config_annotated, detail_log_directory_annotated, None)
-        #     # result = check_entailment(description, post, code, task_id, config, check_directory)
-        # except Exception as e:
-        #     # Handle any errors like API issues and log them also add the task to the failed tasks list
-        #     failed_tasks.append({
-        #         "task_id": task_id,
-        #         "model_created": model_created,
-        #         "dataset": dataset,
-        #         "model_run": model,
-        #         "code": code,
-        #         "fail_reason": f"Error: {e}",
-        #         "type_of_run": "hoareprompt annotated"
-        #     })
-
-        #     logger.error(f"Error: {e}")
-        #     break
-
-        # try:
-        #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
-        #     # post = compute_postcondition(precondition, replaced_code, config, post_directory)
-
-        #     # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
-            
-        #     result_annotated_simple=assess(description, code, task_id, config_annotated_simple, detail_log_directory_annotated_simple, None)
-        #     # result = check_entailment(description, post, code, task_id, config, check_directory)
-        # except Exception as e:
-        #     # Handle any errors like API issues and log them also add the task to the failed tasks list
-        #     failed_tasks.append({
-        #         "task_id": task_id,
-        #         "model_created": model_created,
-        #         "dataset": dataset,
-        #         "model_run": model,
-        #         "code": code,
-        #         "fail_reason": f"Error: {e}",
-        #         "type_of_run": "hoareprompt annotated simple"
-        #     })
-
-        #     logger.error(f"Error: {e}")
-        #     break
-
         
+        for i in range(1, 6):
+            try:
+                # Compute postcondition using the precondition and code bycinvoking hoareprompt
+                # post = compute_postcondition(precondition, replaced_code, config, post_directory)
+
+                # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
+                
+                result1, confidence1, result2, confidence2=assess(description, code, task_id, config, detail_log_directory, None)
+                # result = check_entailment(description, post, code, task_id, config, check_directory)
+            except Exception as e:
+                # Handle any errors like API issues and log them also add the task to the failed tasks list
+                failed_tasks.append({
+                    "task_id": task_id,
+                    "model_created": model_created,
+                    "dataset": dataset,
+                    "model_run": model,
+                    "code": code,
+                    "fail_reason": f"Error: {e}",
+                    "type_of_run": "naive no fsl"
+                })
+
+                #if an nexception occurs go to the next task
+                break
+
+            # try:
+            #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
+            #     # post = compute_postcondition(precondition, replaced_code, config, post_directory)
+
+            #     # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
+            #     total += 1
+            #     print(f"Running task {task_id} with log directory {detail_log_directory}")
+            #     result=assess(description, code, task_id, config, detail_log_directory, None)
+            #     # result = check_entailment(description, post, code, task_id, config, check_directory)
+            # except Exception as e:
+            #     # Handle any errors like API issues and log them also add the task to the failed tasks list
+            #     failed_tasks.append({
+            #         "task_id": task_id,
+            #         "model_created": model_created,
+            #         "dataset": dataset,
+            #         "model_run": model,
+            #         "code": code,
+            #         "fail_reason": f"Error: {e}",
+            #         "type_of_run": "hoareprompt"
+            #     })
+
+            #     logger.error(f"Error: {e}")
+            #     break
+
+            # try:
+            #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
+            #     # post = compute_postcondition(precondition, replaced_code, config, post_directory)
+
+            #     # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
+                
+            #     result_annotated=assess(description, code, task_id, config_annotated, detail_log_directory_annotated, None)
+            #     # result = check_entailment(description, post, code, task_id, config, check_directory)
+            # except Exception as e:
+            #     # Handle any errors like API issues and log them also add the task to the failed tasks list
+            #     failed_tasks.append({
+            #         "task_id": task_id,
+            #         "model_created": model_created,
+            #         "dataset": dataset,
+            #         "model_run": model,
+            #         "code": code,
+            #         "fail_reason": f"Error: {e}",
+            #         "type_of_run": "hoareprompt annotated"
+            #     })
+
+            #     logger.error(f"Error: {e}")
+            #     break
+
+            # try:
+            #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
+            #     # post = compute_postcondition(precondition, replaced_code, config, post_directory)
+
+            #     # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
+                
+            #     result_annotated_simple=assess(description, code, task_id, config_annotated_simple, detail_log_directory_annotated_simple, None)
+            #     # result = check_entailment(description, post, code, task_id, config, check_directory)
+            # except Exception as e:
+            #     # Handle any errors like API issues and log them also add the task to the failed tasks list
+            #     failed_tasks.append({
+            #         "task_id": task_id,
+            #         "model_created": model_created,
+            #         "dataset": dataset,
+            #         "model_run": model,
+            #         "code": code,
+            #         "fail_reason": f"Error: {e}",
+            #         "type_of_run": "hoareprompt annotated simple"
+            #     })
+
+            #     logger.error(f"Error: {e}")
+            #     break
+
+            
 
 
-        # # update accuracy variables
-        # if result == test_result:
-        #     correct += 1
+            # # update accuracy variables
+            # if result == test_result:
+            #     correct += 1
 
-        # # Update accuracy and MCC tracking counters based on result
-        # if result == test_result:
-        #     if test_result:
-        #         tp += 1
-        #     else:
-        #         tn += 1
-        # else:
-        #     if test_result:
-        #         fn += 1
-        #     else:
-        #         fp += 1
+            # # Update accuracy and MCC tracking counters based on result
+            # if result == test_result:
+            #     if test_result:
+            #         tp += 1
+            #     else:
+            #         tn += 1
+            # else:
+            #     if test_result:
+            #         fn += 1
+            #     else:
+            #         fp += 1
 
-        # try:
-        #     # Check entailment using naive approach
-        #     # naive_result = compute_postcondition_naive(description, code, config, naive_directory)
-        #     naive_result = assess(description, code, task_id, config_naive, detail_log_directory_naive,None)
-        # except Exception as e:
-        #     # Handle any errors like API issues and log them also add the task to the failed tasks list
-        #     failed_tasks.append({
-        #         "task_id": task_id,
-        #         "model_created": model_created,
-        #         "dataset": dataset,
-        #         "model_run": model,
-        #         "code": code,
-        #         "fail_reason": f"Error: {e}",
-        #         "type_of_run": "naive"
-        #     })
+            # try:
+            #     # Check entailment using naive approach
+            #     # naive_result = compute_postcondition_naive(description, code, config, naive_directory)
+            #     naive_result = assess(description, code, task_id, config_naive, detail_log_directory_naive,None)
+            # except Exception as e:
+            #     # Handle any errors like API issues and log them also add the task to the failed tasks list
+            #     failed_tasks.append({
+            #         "task_id": task_id,
+            #         "model_created": model_created,
+            #         "dataset": dataset,
+            #         "model_run": model,
+            #         "code": code,
+            #         "fail_reason": f"Error: {e}",
+            #         "type_of_run": "naive"
+            #     })
 
-        #     logger.error(f"Error: {e}")
-        #     break
+            #     logger.error(f"Error: {e}")
+            #     break
 
 
 
-        # save to log dir
-        save_to_file(description, detail_log_directory / "description.txt")
-        save_to_file(code, detail_log_directory / "program.py")
-        # save_to_file(precondition, detail_log_directory / "precondition.txt")
-        # # save_to_file(post, detail_log_directory / "postcondition.txt")
-        # save_to_file(naive_result, detail_log_directory / "naive.txt")
-        # save_to_file(result_naive_no_fsl, detail_log_directory / "naive_no_fsl.txt")
-        # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
-        # save_to_file(result, detail_log_directory / "result.txt")
+            # save to log dir
+            save_to_file(description, detail_log_directory / "description.txt")
+            save_to_file(code, detail_log_directory / "program.py")
+            # save_to_file(precondition, detail_log_directory / "precondition.txt")
+            # # save_to_file(post, detail_log_directory / "postcondition.txt")
+            # save_to_file(naive_result, detail_log_directory / "naive.txt")
+            # save_to_file(result_naive_no_fsl, detail_log_directory / "naive_no_fsl.txt")
+            # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
+            # save_to_file(result, detail_log_directory / "result.txt")
 
-        # write to logger
-        logger.debug(f"Dataset: {dataset}")
-        logger.debug(f"model_created: {model_created}")
-        logger.debug(f"model_run: {model}")
-        logger.debug(f"description: {description}")
-        # logger.debug(f"Code:\n{code}")
-        # if dataset == "apps":
-        #     logger.debug(f"Test Pass Rate {task_data['pass_rate']}")
-        # elif dataset == "mbpp":
-        #     logger.debug(f"Base Test Pass Rate: {task_id['base_accuracy']}")
-        #     logger.debug(f"Plus Test Pass Rate: {task_id['plus_accuracy']}")
-        #     logger.debug(f"Assertion Pass Rate: {task_id['assertion_accuracy']}")
-        # logger.debug(f"Postcondition: {post}")
-        # logger.debug(f"Correctness: {result}")
+            # write to logger
+            logger.debug(f"Dataset: {dataset}")
+            logger.debug(f"model_created: {model_created}")
+            logger.debug(f"model_run: {model}")
+            logger.debug(f"description: {description}")
+            # logger.debug(f"Code:\n{code}")
+            # if dataset == "apps":
+            #     logger.debug(f"Test Pass Rate {task_data['pass_rate']}")
+            # elif dataset == "mbpp":
+            #     logger.debug(f"Base Test Pass Rate: {task_id['base_accuracy']}")
+            #     logger.debug(f"Plus Test Pass Rate: {task_id['plus_accuracy']}")
+            #     logger.debug(f"Assertion Pass Rate: {task_id['assertion_accuracy']}")
+            # logger.debug(f"Postcondition: {post}")
+            # logger.debug(f"Correctness: {result}")
 
-        # logger.debug(f"Total Test: {total}")
-        # logger.debug(f"Total Correct: {correct}\n\n\n")
+            # logger.debug(f"Total Test: {total}")
+            # logger.debug(f"Total Correct: {correct}\n\n\n")
 
-        # # Write task result to CSV logger
-        result = {
-            "Task ID": task_id,
-            "Dataset": dataset,
-            "model_created": model_created,
-            "model_run": model,
-            "description": description,
-            "Code": code,
-            "Post": "post",
-            "original correctness": original_correctness,
-            "confidence1": confidence1,
-            "confidence2": confidence2,
-            "correctness1": result1,
-            "correctness1": result2,
-            "data file": datafile,
-        }
+            # # Write task result to CSV logger
+            result = {
+                "Task ID": task_id,
+                "Dataset": dataset,
+                "model_created": model_created,
+                "model_run": model,
+                "description": description,
+                "Code": code,
+                "Post": "post",
+                "original correctness": original_correctness,
+                "confidence1": confidence1,
+                "confidence2": confidence2,
+                "correctness1": result1,
+                "correctness1": result2,
+                "data file": datafile,
+            }
 
-        with open(logger.csv_file, mode='a', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=columns)
-            writer.writerow(result)
+            with open(logger.csv_file, mode='a', newline='') as file:
+                writer = csv.DictWriter(file, fieldnames=columns)
+                writer.writerow(result)
 
      # Final accuracy and MCC logging
     # rate = correct / total

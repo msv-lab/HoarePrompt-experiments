@@ -1,9 +1,10 @@
-def get_location(apartment):
-    block = (apartment - 1) // (m * k) + 1
-    floor_within_block = (apartment - 1) % (m * k)
-    floor = floor_within_block // k + 1
-    return block, floor
-    #The program returns the values of block and floor based on the calculations involving n, m, k, a, b, and the derived values of floor_within_block and floor.
-#Overall this is what the function does: The function accepts a parameter apartment and returns the values of block and floor based on calculations involving the dimensions of the building and the apartment number.
-The program returns the values of block and floor based on the calculations involving n, m, k, a, b, and the derived values of floor_within_block and floor.
+def func_1(lst):
+    even_count = sum(1 for x in lst if x % 2 == 0)
+    odd_count = len(lst) - even_count
+    even_pairs = even_count * (even_count - 1) // 2
+    odd_pairs = odd_count * (odd_count - 1) // 2
+    return even_pairs + odd_pairs
+    #The program returns the sum of even_pairs and odd_pairs calculated from even_count and odd_count
+#Overall this is what the function does: The function accepts a parameter lst, which is a list of integers, and returns the sum of even_pairs and odd_pairs calculated from even_count and odd_count.
+The program returns the sum of even_pairs and odd_pairs calculated from even_count and odd_count
 
