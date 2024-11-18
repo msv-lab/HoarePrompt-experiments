@@ -89,7 +89,7 @@ def main(data: dict, config: dict, logger, model, datafile):
         logger.debug(f"Start Task {task_id}")
 
         try:
-            # if you connot parse the code in ast , skip this task
+            # if you cannot parse the code in ast , skip this task
             parsed_code = ast.parse(replaced_code).body
         except Exception as e:
             logger.debug(f"Task {task_id} skip due to parse error: {e}\n\n\n")
@@ -145,6 +145,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             result_naive_no_fsl=assess(description, code, task_id, config_naive_no_fsl, detail_log_directory_naive_no_fsl, None)
             # result = check_entailment(description, post, code, task_id, config, check_directory)
         except Exception as e:
+            print(f"An error occurred: {e}")
             # Handle any errors like API issues and log them also add the task to the failed tasks list
             failed_tasks.append({
                 "task_id": task_id,
@@ -181,7 +182,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             })
 
             logger.error(f"Error: {e}")
-            break
+            continue
 
         try:
             # Compute postcondition using the precondition and code bycinvoking hoareprompt
@@ -204,7 +205,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             })
 
             logger.error(f"Error: {e}")
-            break
+            continue
 
         
 
@@ -242,7 +243,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             })
 
             logger.error(f"Error: {e}")
-            break
+            continue
 
 
 

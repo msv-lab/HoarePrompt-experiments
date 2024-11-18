@@ -1,8 +1,5 @@
-def func_1(l, r, k):
-    dp = {}
-    #State of the program here: dp is an empty dictionary
-    return (count(r, k, dp) - count(l - 1, k, dp)) % MOD
-    #State of the program after the return statement: dp is an empty dictionary
-#Overall this is what the function does: The function `func_1` accepts three parameters `l, r, and k`, where `l, r, and k` are integers such that 1 <= l <= r < 10^18 and 1 <= k <= 10. After executing the function body, the function returns an empty dictionary `dp`. Therefore, the functionality of the function `func_1` is to accept three integers `l, r, and k` within the specified constraints and return an empty dictionary `dp`.
-dp is an empty dictionary
+def func():
+    a, b = map(int, raw_input().split())
+    print(b - a) * (b - a - 1) / 2 - a
+#Overall this is what the function does: The function accepts two parameters a and b, which are integers such that 1 ≤ a < b < 499500.
 

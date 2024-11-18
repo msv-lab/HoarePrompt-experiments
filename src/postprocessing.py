@@ -19,7 +19,7 @@ def calculate_mcc(tp, tn, fp, fn):
     denominator = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
     return numerator / denominator if denominator != 0 else 0
 
-def analyze_correctness(file_path):
+def analyze_correctness(file_path, report_name):
     df = pd.read_csv(file_path)
     df['Correctness'] = df.apply(lambda row: preprocess_correctness(row['Correctness'], row['Task ID']), axis=1)
     df['naive correctness'] = df.apply(lambda row: preprocess_correctness(row['naive correctness'], row['Task ID']), axis=1)
@@ -166,14 +166,15 @@ def analyze_correctness(file_path):
     print("Analysis Report")
     print(json.dumps(analysis_report, indent=4))
 
-    output_file_path = os.path.join(os.path.dirname(file_path), "analysis_report.json")
+    output_file_path = os.path.join(os.path.dirname(file_path), report_name)
     with open(output_file_path, "w") as json_file:
         json.dump(analysis_report, json_file, indent=4)
     print(f"\nAnalysis report saved to {output_file_path}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python analyze_correctness.py <csv_file_path>")
+        print("Usage: python analyze_correctness.py <csv_file_path> <report_name>")
     else:
         file_path = sys.argv[1]
-        analyze_correctness(file_path)
+        report_name = sys.argv[2]
+        analyze_correctness(file_path, report_name)

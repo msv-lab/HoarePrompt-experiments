@@ -26,7 +26,7 @@ fi
 INPUT="${dataset}_${model}_${time}"
 # Define the base path for the data and log directories
 # DATA_DIR="/home/jim/HoarePrompt-data/PilotData/data" # here is where you will find the dataset
-LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_reruns/$INPUT"  #here is where you will store the results
+LOG_DIR="/Users/anna/Documents/project/HoarePrompt-data/Results/code_contests/$INPUT"  #here is where you will store the results
 
 # Create the log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
