@@ -1,6 +1,6 @@
 {
     "model": "gpt-4o-mini-2024-07-18",
-    "temperature": 0.5,
+    "temperature": 0.8,
     "assessment-mode": "postcondition-entailment", 
     "postcondition-mode": "hoarecot",
     "postcondition-cot-prompt": "node-based-style",

@@ -26,7 +26,7 @@ fi
 INPUT="${dataset}_${model}_${time}"
 # Define the base path for the data and log directories
 DATA_DIR="/home/jim/HoarePrompt-data/PilotData/data"
-LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_confidence/$INPUT"
+LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_confidence_simple/$INPUT"
 
 # Create the log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
@@ -40,7 +40,7 @@ echo "Processing ${#data_files[@]} data files..."
 # Loop over each data file and run the command
 for data_file in "${data_files[@]}"; do
     echo "Processing $data_file..."
-    python3 -m src.main_confidence --config "$CONFIG" --data "$data_file" --log "$LOG_DIR"
+    python3 -m src.main_confidence_simple --config "$CONFIG" --data "$data_file" --log "$LOG_DIR"
     if [ $? -ne 0 ]; then
         echo "Error processing $data_file. Exiting."
         exit 1
