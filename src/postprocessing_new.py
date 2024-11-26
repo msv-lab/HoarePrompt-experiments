@@ -17,14 +17,14 @@ def preprocess_correctness(value, task_id):
 
 def calculate_mcc(tp, tn, fp, fn):
     """Calculate Matthews correlation coefficient (MCC)."""
-    print(tp, tn, fp, fn)
+    # print(tp, tn, fp, fn)
 
     numerator = (tp * tn) - (fp * fn)
-    print(numerator)
+    # print(numerator)
     denominator = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-    print(denominator)
+    # print(denominator)
     res= numerator / denominator if denominator != 0 else 0
-    print(res)
+    # print(res)
     return res
 
 def calculate_agreement(df, col1, col2):
@@ -61,6 +61,74 @@ def make_json_serializable(data):
     else:
         return str(data)  # Convert any unsupported types to strings
 
+def calculate_accuracy(tp, tn, fp, fn):
+    """
+    Calculate accuracy.
+    :param tp: True Positives
+    :param tn: True Negatives
+    :param fp: False Positives
+    :param fn: False Negatives
+    :return: Accuracy score
+    """
+    total = tp + tn + fp + fn
+    if total == 0:
+        return 0  # Avoid division by zero
+    return (tp + tn) / total
+
+
+def calculate_precision(tp, fp):
+    """
+    Calculate precision.
+    :param tp: True Positives
+    :param fp: False Positives
+    :return: Precision score
+    """
+    total = tp + fp
+    if total == 0:
+        return 0  # Avoid division by zero
+    return tp / total
+
+
+def calculate_recall(tp, fn):
+    """
+    Calculate recall (sensitivity).
+    :param tp: True Positives
+    :param fn: False Negatives
+    :return: Recall score
+    """
+    total = tp + fn
+    if total == 0:
+        return 0  # Avoid division by zero
+    return tp / total
+
+
+def calculate_f1_score(tp, fp, fn):
+    """
+    Calculate F1 score.
+    :param tp: True Positives
+    :param fp: False Positives
+    :param fn: False Negatives
+    :return: F1 score
+    """
+    precision = calculate_precision(tp, fp)
+    recall = calculate_recall(tp, fn)
+    if precision + recall == 0:
+        return 0  # Avoid division by zero
+    return 2 * (precision * recall) / (precision + recall)
+
+
+def calculate_balanced_accuracy(tp, tn, fp, fn):
+    """
+    Calculate balanced accuracy.
+    :param tp: True Positives
+    :param tn: True Negatives
+    :param fp: False Positives
+    :param fn: False Negatives
+    :return: Balanced Accuracy score
+    """
+    sensitivity = calculate_recall(tp, fn)  # Recall for positive class
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0  # Recall for negative class
+    return (sensitivity + specificity) / 2
 
 
 
@@ -93,10 +161,20 @@ def analyze_correctness(file_path):
         count, pct = calculate_agreement(valid_df, col1, col2)
         tp, tn, fp, fn = calculate_confusion_matrix(valid_df, col2, col1)
         mcc = calculate_mcc(tp, tn, fp, fn)
+        accuracy = calculate_accuracy(tp, tn, fp, fn)
+        precision = calculate_precision(tp, fp)
+        recall = calculate_recall(tp, fn)
+        f1_score = calculate_f1_score(tp, fp, fn)
+        balanced_accuracy = calculate_balanced_accuracy(tp, tn, fp, fn)
         analysis_report[col1] = {
             "agreement_count": count,
             "agreement_percentage": pct,
             "mcc": mcc,
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1_score,
+            'balanced_accuracy': balanced_accuracy,
             "description": f"Agreement analysis between '{col1}' and '{col2}'."
         }
 
