@@ -157,6 +157,8 @@ def analyze_correctness(file_path):
         ('annotated correctness simple', 'original correctness'),
         ('naive no fsl correctness', 'original correctness')
     ]
+
+    correct_names = {"Correctness": "Function summary", "naive correctness": "Naive", "annotated correctness": "Complex tree", "annotated correctness simple": "Simple tree", "naive no fsl correctness": "Naive No FSL"}
     for col1, col2 in comparisons:
         count, pct = calculate_agreement(valid_df, col1, col2)
         tp, tn, fp, fn = calculate_confusion_matrix(valid_df, col2, col1)
@@ -166,7 +168,7 @@ def analyze_correctness(file_path):
         recall = calculate_recall(tp, fn)
         f1_score = calculate_f1_score(tp, fp, fn)
         balanced_accuracy = calculate_balanced_accuracy(tp, tn, fp, fn)
-        analysis_report[col1] = {
+        analysis_report[correct_names[col1]] = {
             "agreement_count": count,
             "agreement_percentage": pct,
             "mcc": mcc,
