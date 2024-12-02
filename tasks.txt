@@ -1,29 +1,11 @@
-def count(n, k, dp):
-    if (k == 0) :
-        return 0
-        #The program returns 0
-    #State of the program after the if block has been executed: *`l` and `r` are integers such that 1 <= `l` <= `r` < 10^18, `k` is an integer such that 1 <= `k` <= 10, and `k` is not equal to 0.
-    if ((n, k) in dp) :
-        return dp[n, k]
-        #The program returns the value associated with the tuple (n, k) from the data structure dp
-    #State of the program after the if block has been executed: *`l` and `r` are integers such that 1 <= `l` <= `r` < 10^18, `k` is an integer such that 1 <= `k` <= 10, `k` is not equal to 0, and the pair `(n, k)` is not present in `dp`
-    if (n < 10 ** k) :
-        dp[n, k] = n
-    else :
-        dp[n, k] = 9
-        for i in range(1, k):
-            dp[n, k] += 9 * 10 ** (i - 1) * (10 ** (k - i) - 10 ** (i - 1))
-            
-        #State of the program after the  for loop has been executed: `l` and `r` are integers such that 1 <= `l` <= `r` < 10^18; `k` is greater than 1 and less than or equal to 10; `i` is `k - 1`; `dp[n, k]` is the original value increased by the sum of the calculations from the loop.
-        dp[n, k] += (10 ** (k - 1) - 10 ** (k - 2)) * (n // 10 ** (k - 1) - 1)
-        dp[n, k] %= MOD
-    #State of the program after the if-else block has been executed: *`l` and `r` are integers such that 1 <= `l` <= `r` < 10^18, `k` is an integer such that 1 <= `k` <= 10; if `n` is less than 10
-    return dp[n, k]
-    #The program returns the value of dp[n, k] where n is less than 10 and k is an integer between 1 and 10.
-#Overall this is what the function does: The function accepts parameters n, k, and dp, returning 0 under certain conditions, the value associated with (n, k) from dp, or dp[n, k] when n is less than 10 and k is between 1 and 10.
-Case_1: The program returns 0
-
-Case_2: The program returns the value associated with the tuple (n, k) from the data structure dp
-
-Case_3: The program returns the value of dp[n, k] where n is less than 10 and k is an integer between 1 and 10.
+def func_1(list1, list2):
+    set1 = set(list1)
+    set2 = set(list2)
+    diff_elements = set1.symmetric_difference(set2)
+    result_list = list(diff_elements)
+    result_list.sort(key=lambda x: (list1 + list2).index(x))
+    return result_list
+    #The program returns a list containing the elements of the symmetric difference of set1 and set2, sorted based on their indexes in the combined list of list1 and list2
+#Overall this is what the function does: The function accepts two lists, returns a new list containing the elements of the symmetric difference of the input lists, sorted based on their indexes in the combined list.
+The program returns a list containing the elements of the symmetric difference of set1 and set2, sorted based on their indexes in the combined list of list1 and list2
 
