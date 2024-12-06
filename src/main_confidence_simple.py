@@ -18,9 +18,8 @@ from src.preprocessing import replace_function_name, count_function_defs
 def save_to_file(content, file_path):
     with open(file_path, 'w') as file:
         #if content i boolean, convert it to string
-        if isinstance(content, bool):
-            content = str(content)
-        file.write(content)
+        content = str(content)
+        file.C(content)
 
 # Calculates the Matthews Correlation Coefficient for evaluating binary classification results
 def calculate_mcc(tp, tn, fp, fn):

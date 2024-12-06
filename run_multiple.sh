@@ -36,8 +36,13 @@
 # ./test_fast.sh apps 4 default_config_4_mini.json
 # ./test_fast.sh apps 5 default_config_4_mini.json
 
+
+./test_fast_75.sh apps 2 default_config_4_mini.json
+# ./test_confidence.sh apps 1 default_config_4_mini.json
+# ./test_confidence.sh mbpp 1 default_config_4_mini.json
+# ./test_confidence.sh apps 1 default_config.json
+# ./test_confidence.sh mbpp 1 default_config.json
 ./test_fast_75.sh mbpp 1 default_config_4_mini.json
-./test_fast_75.sh apps 1 default_config_4_mini.json
 # ./test_fast.sh mbpp 2 default_config.json
 # ./test_fast.sh mbpp 3 default_config.json
 # ./test_fast.sh mbpp 4 default_config.json

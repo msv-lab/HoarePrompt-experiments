@@ -26,13 +26,13 @@ fi
 INPUT="${dataset}_${model}_${time}"
 # Define the base path for the data and log directories
 DATA_DIR="/home/jim/HoarePrompt-data/PilotData/data"
-LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_new3/$INPUT"
+LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_new5/$INPUT"
 
 # Create the log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
 
 # Array of data files to process, using correct syntax for variable expansion
-data_files=("${DATA_DIR}/pilot_${dataset}_final_size_75.json")
+data_files=("${DATA_DIR}/selected_pilot_75_${dataset}.json")
 
 # Inform the user of the number of files being processed
 echo "Processing ${#data_files[@]} data files..."

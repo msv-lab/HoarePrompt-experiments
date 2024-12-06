@@ -18,8 +18,7 @@ from src.preprocessing import replace_function_name, count_function_defs
 def save_to_file(content, file_path):
     with open(file_path, 'w') as file:
         #if content i boolean, convert it to string
-        if isinstance(content, bool):
-            content = str(content)
+        content = str(content)
         file.write(content)
 
 # Calculates the Matthews Correlation Coefficient for evaluating binary classification results
@@ -58,7 +57,9 @@ def main(data: dict, config: dict, logger, model, datafile):
     config_naive_no_fsl = config_naive.copy()
     config_naive_no_fsl["fsl"] = False
     # This is the main loop where the work is done, it tterates over each task in the provided data
-    for task_data in data:
+    #for loop to include the index and the task in the data
+    for index, task_data in enumerate(data):
+        print(f"Running task {index} out of {len(data)}")
         task_id = task_data["task_id"]
         task_id = task_id.replace("/", "_")
         model_created = task_data["model"]
