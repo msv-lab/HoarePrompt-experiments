@@ -1,8 +1,6 @@
-def func_1(n):
-    even_numbers = [(2 * i) for i in range(1, n + 1)]
-    cube_sum = sum(x ** 3 for x in even_numbers)
-    return cube_sum
-    #The program returns cube_sum which is equal to the sum of the cubes of the first n even numbers
-#Overall this is what the function does: The function accepts a parameter n, which is a non-negative integer, and returns the sum of the cubes of the first n even numbers.
-The program returns cube_sum which is equal to the sum of the cubes of the first n even numbers
+def func_1(length, width):
+    return length * width
+    #The program returns the area of the rectangle, which is calculated as length multiplied by width, where both length and width are non-negative integers or floats.
+#Overall this is what the function does: The function accepts parameters length and width, returns the area of the rectangle calculated as length multiplied by width.
+The program returns the area of the rectangle, which is calculated as length multiplied by width, where both length and width are non-negative integers or floats.
 

@@ -40,17 +40,17 @@
 #!/bin/bash
 
 # Start both commands in the background
-./test_fast_75.sh apps 3 default_config_4_mini.json &
-PID1=$!
-./test_fast_75.sh mbpp 2 default_config_4_mini.json &
-PID2=$!
+# ./test_fast_75.sh apps 3 default_config_4_mini.json &
+# PID1=$!
+./test_fast_75.sh mbpp 3 default_config_4_mini.json 
+# PID2=$!
 
-# Set up trap to kill both processes if Ctrl+C is pressed
-trap "kill $PID1 $PID2; exit" SIGINT
+# # Set up trap to kill both processes if Ctrl+C is pressed
+# trap "kill $PID1 $PID2; exit" SIGINT
 
-# Wait for both processes to finish
-wait $PID1
-wait $PID2
+# # Wait for both processes to finish
+# wait $PID1
+# wait $PID2
 
 # ./test_fast.sh mbpp 2 default_config.json
 # ./test_fast.sh mbpp 3 default_config.json
