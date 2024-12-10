@@ -1,6 +1,12 @@
-def func_1(length, width):
-    return length * width
-    #The program returns the area of the rectangle, which is calculated as length multiplied by width, where both length and width are non-negative integers or floats.
-#Overall this is what the function does: The function accepts parameters length and width, returns the area of the rectangle calculated as length multiplied by width.
-The program returns the area of the rectangle, which is calculated as length multiplied by width, where both length and width are non-negative integers or floats.
+def func_1(n):
+    sum = 0
+    for i in range(n + 1):
+        if i % 2 == 0:
+            sum += math.comb(n, i)
+        
+    #State of the program after the  for loop has been executed: `sum` is equal to the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`, `n` is a positive integer.
+    return sum
+    #The program returns the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`, where `n` is a positive integer.
+#Overall this is what the function does: The function accepts a positive integer n and returns the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`.
+The program returns the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`, where `n` is a positive integer.
 

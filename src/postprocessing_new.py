@@ -137,7 +137,7 @@ def analyze_correctness(file_path):
     df = pd.read_csv(file_path)
     columns_to_preprocess = ['Correctness', 'naive correctness', 'original correctness', 
                              'annotated correctness', 'annotated correctness simple', 
-                             'naive no fsl correctness']
+                             'naive no fsl correctness', 'Correctness no fsl']
     valid_df = process_correctness_columns(df, columns_to_preprocess)
     total_rows = len(valid_df)
 
@@ -155,10 +155,11 @@ def analyze_correctness(file_path):
         ('naive correctness', 'original correctness'),
         ('annotated correctness', 'original correctness'),
         ('annotated correctness simple', 'original correctness'),
-        ('naive no fsl correctness', 'original correctness')
+        ('naive no fsl correctness', 'original correctness'),
+        ('Correctness no fsl', 'original correctness')
     ]
 
-    correct_names = {"Correctness": "Function summary", "naive correctness": "Naive", "annotated correctness": "Complex tree", "annotated correctness simple": "Simple tree", "naive no fsl correctness": "Naive No FSL"}
+    correct_names = {"Correctness": "Function summary", "naive correctness": "Naive", "annotated correctness": "Complex tree", "annotated correctness simple": "Simple tree", "naive no fsl correctness": "Naive No FSL", 'Correctness no fsl': 'Function summary no FSL'}
     for col1, col2 in comparisons:
         count, pct = calculate_agreement(valid_df, col1, col2)
         tp, tn, fp, fn = calculate_confusion_matrix(valid_df, col2, col1)

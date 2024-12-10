@@ -43,13 +43,15 @@ def main(data: dict, config: dict, logger, model, datafile):
 
     columns = [
         "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "Test Result",
-        "Correctness", "Post", "original correctness", "naive correctness", "annotated correctness", "annotated correctness simple", "naive no fsl correctness" , "data file"]
+        "Correctness", "Post", "original correctness", "naive correctness", "annotated correctness", "annotated correctness simple", "naive no fsl correctness" , "Correctness no fsl" , "data file"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
             writer.writeheader()
     config["annotated"] = False
     config["fsl"] = True
+    config_no_fsl = config.copy()
+    config_no_fsl["fsl"] = False
     config_naive = config.copy()
     config_naive["assessment-mode"] = "naive"
     config_annotated = config.copy()
@@ -129,6 +131,8 @@ def main(data: dict, config: dict, logger, model, datafile):
         post_directory.mkdir(parents=True, exist_ok=True)
         check_directory.mkdir(parents=True, exist_ok=True)
         naive_directory.mkdir(parents=True, exist_ok=True)
+        detail_log_directory_no_fsl = logger.log_dir  /  task_id/ f"{task_id}_no_fsl" / model_created
+        detail_log_directory_no_fsl.mkdir(parents=True, exist_ok=True)
         detail_log_directory_annotated = logger.log_dir  /  task_id/ f"{task_id}_annotated" / model_created
         detail_log_directory_annotated.mkdir(parents=True, exist_ok=True)
         detail_log_directory_naive = logger.log_dir  / task_id/  f"{task_id}_naive" / model_created
@@ -169,13 +173,14 @@ def main(data: dict, config: dict, logger, model, datafile):
             print(f"Running task {task_id} with log directory {detail_log_directory}")
             result=assess(description, code, task_id, config_annotated, detail_log_directory, None)
             #if result is nopt list with length 3
-            if not isinstance(result, list) or len(result) != 3:
-                print(f"Result is not a list with 3 elements: {result}")
-                raise ValueError(f"Result is not a list with 3 elements: {result}")
+            if not isinstance(result, list) or len(result) != 4:
+                print(f"Result is not a list with 4 elements: {result}")
+                raise ValueError(f"Result is not a list with 4 elements: {result}")
             else:
                 result_simple = result[0]
                 result_complex = result[1]
                 result_default = result[2]
+                result_default_no_fsl = result[3]
 
             # result = check_entailment(description, post, code, task_id, config, check_directory)
         except Exception as e:
@@ -290,6 +295,7 @@ def main(data: dict, config: dict, logger, model, datafile):
         save_to_file(result_simple, detail_log_directory / "result_simple.txt")
         save_to_file(result_complex, detail_log_directory / "result_complex.txt")
         save_to_file(result_default, detail_log_directory / "result_default.txt")
+        save_to_file(result_default_no_fsl, detail_log_directory / "result_default_no_fsl.txt")
 
         # write to logger
         logger.debug(f"Dataset: {dataset}")
@@ -324,6 +330,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             "annotated correctness": result_complex,
             "annotated correctness simple": result_simple,
             "naive no fsl correctness": result_naive_no_fsl,
+            "Correctness no fsl": result_default_no_fsl,
             "data file": datafile,
         }
 
