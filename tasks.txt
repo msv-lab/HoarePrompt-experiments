@@ -1,12 +1,7 @@
-def func_1(n):
-    sum = 0
-    for i in range(n + 1):
-        if i % 2 == 0:
-            sum += math.comb(n, i)
-        
-    #State of the program after the  for loop has been executed: `sum` is equal to the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`, `n` is a positive integer.
-    return sum
-    #The program returns the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`, where `n` is a positive integer.
-#Overall this is what the function does: The function accepts a positive integer n and returns the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`.
-The program returns the sum of all combinations `math.comb(n, i)` for all even `i` in the range from 0 to `n`, where `n` is a positive integer.
+def func_1(real, imag):
+    complex_number = complex(real, imag)
+    return cmath.phase(complex_number)
+    #The program returns the phase of the complex number, which is the angle in radians between the positive real axis and the line segment that connects the origin to the complex number in the complex plane, calculated as atan2(imag, real)
+#Overall this is what the function does: The function accepts two parameters, real and imag, both real numbers, and returns the phase of the complex number in radians.
+The program returns the phase of the complex number, which is the angle in radians between the positive real axis and the line segment that connects the origin to the complex number in the complex plane, calculated as atan2(imag, real)
 

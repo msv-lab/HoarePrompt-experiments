@@ -147,7 +147,7 @@ def main(data: dict, config: dict, logger, model, datafile):
                 # post = compute_postcondition(precondition, replaced_code, config, post_directory)
 
                 # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
-                
+                print(f"Running task {index} out of {len(data)}")
                 result_naive_no_fsl=assess(description, code, task_id, config_naive_no_fsl, detail_log_directory_naive_no_fsl, None)
                 # result = check_entailment(description, post, code, task_id, config, check_directory)
             except Exception as e:
@@ -257,7 +257,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             try:
                 # Check entailment using naive approach
                 # naive_result = compute_postcondition_naive(description, code, config, naive_directory)
-                
+                print(f"Running task {index} out of {len(data)}")
                 naive_result = assess(description, code, task_id, config_naive, detail_log_directory_naive,None)
             except Exception as e:
                 # Handle any errors like API issues and log them also add the task to the failed tasks list

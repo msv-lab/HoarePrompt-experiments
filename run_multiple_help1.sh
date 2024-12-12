@@ -40,8 +40,21 @@
 !/bin/bash
 
 # Start both commands in the background
-./run_multiple_help1.sh 
-./run_multiple_help2.sh 
+./test_confidence.sh apps 1 default_config_4_mini.json &
+PID1=$!
+./test_confidence.sh apps 1 default_config_llama.json &
+PID2=$!
+./test_confidence.sh apps 1 default_config_qwen.json &
+PID3=$!
+
+# # Set up trap to kill both processes if Ctrl+C is pressed
+trap "kill $PID1 $PID2 $PID3; exit" SIGINT
+
+# # Wait for both processes to finish
+wait $PID1
+wait $PID2
+wait $PID3
+
 # ./test_fast.sh mbpp 2 default_config.json
 # ./test_fast.sh mbpp 3 default_config.json
 # ./test_fast.sh mbpp 4 default_config.json

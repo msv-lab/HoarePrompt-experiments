@@ -15,6 +15,8 @@ CONFIG=$3
 #if config contains the word llamathen make variable model llama
 if [[ $CONFIG == *"llama"* ]]; then
     model="llama"
+elif [[ $CONFIG == *"qwen2.5"* ]]; then
+    model="qwen2point5"
 #if it contains the word bert then make variable model bert
 elif [[ $CONFIG == *"4_mini"* ]]; then
     model="4_mini"
@@ -26,7 +28,7 @@ fi
 INPUT="${dataset}_${model}_${time}"
 # Define the base path for the data and log directories
 DATA_DIR="/home/jim/HoarePrompt-data/PilotData/data"
-LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot6/$INPUT"
+LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/$INPUT"
 
 # Create the log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
