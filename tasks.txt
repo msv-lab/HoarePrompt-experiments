@@ -1,7 +1,6 @@
-def func_1(real, imag):
-    complex_number = complex(real, imag)
-    return cmath.phase(complex_number)
-    #The program returns the phase of the complex number, which is the angle in radians between the positive real axis and the line segment that connects the origin to the complex number in the complex plane, calculated as atan2(imag, real)
-#Overall this is what the function does: The function accepts two parameters, real and imag, both real numbers, and returns the phase of the complex number in radians.
-The program returns the phase of the complex number, which is the angle in radians between the positive real axis and the line segment that connects the origin to the complex number in the complex plane, calculated as atan2(imag, real)
+def func_1(n):
+    return sum(i ** 3 for i in range(2, n * 2 + 1, 2))
+    #The program returns the sum of the cubes of all even integers from 2 to n * 2, where n is a non-negative integer.
+#Overall this is what the function does: The function accepts a parameter n, a non-negative integer, and returns the sum of the cubes of all even integers from 2 to n * 2.
+The program returns the sum of the cubes of all even integers from 2 to n * 2, where n is a non-negative integer.
 
