@@ -38,13 +38,18 @@
 
 
 !/bin/bash
-
+# python3 -m src.main_confidence_simple --config default_config_4_mini.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_mbpp_4mini_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/mbpp_4_mini_2
+# python3 -m src.main_confidence_simple --config default_config_llama.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_mbpp_llama_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/mbpp_llama_2
+# python3 -m src.main_confidence_simple --config default_config_qwen.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_mbpp_qwen_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/mbpp_4_qwen_2
 # Start both commands in the background
-./test_confidence.sh apps 1 default_config_4_mini.json &
+# ./test_confidence.sh apps 1 default_config_4_mini.json &
+python3 -m src.main_confidence_simple --config default_config_4_mini.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_mbpp_4mini_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/mbpp_4_mini_2 &
 PID1=$!
-./test_confidence.sh apps 1 default_config_llama.json &
+# ./test_confidence.sh apps 1 default_config_llama.json &
+python3 -m src.main_confidence_simple --config default_config_llama.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_mbpp_llama_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/mbpp_llama_2 &
 PID2=$!
-./test_confidence.sh apps 1 default_config_qwen.json &
+# ./test_confidence.sh apps 1 default_config_qwen.json &
+python3 -m src.main_confidence_simple --config default_config_qwen.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_mbpp_qwen_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot9/mbpp_4_qwen_2 &
 PID3=$!
 
 # # Set up trap to kill both processes if Ctrl+C is pressed
