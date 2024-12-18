@@ -44,7 +44,7 @@
 PID1=$!
 ./test_verify.sh apps 1 default_config_llama.json &
 PID2=$!
-./test_verify.sh mbpp 1 default_config_qwen.json &
+./test_verify.sh apps 1 default_config_qwen.json &
 PID3=$!
 
 # # Set up trap to kill both processes if Ctrl+C is pressed

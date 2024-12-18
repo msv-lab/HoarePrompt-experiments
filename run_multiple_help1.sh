@@ -64,3 +64,5 @@ wait $PID3
 # ./test_fast.sh mbpp 3 default_config.json
 # ./test_fast.sh mbpp 4 default_config.json
 # ./test_fast.sh mbpp 5 default_config.json
+ python3 -m src.main_verify --config default_config_llama.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_llama_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new10/apps_llama_4
+  python3 -m src.main_verify --config default_config_qwen.json --data  /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_qwen_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new11/apps_qwen_2

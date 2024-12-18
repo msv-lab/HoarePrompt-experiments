@@ -1,6 +1,6 @@
-def func_1(n):
-    return sum(i ** 3 for i in range(2, n * 2 + 1, 2))
-    #The program returns the sum of the cubes of all even integers from 2 to n * 2, where n is a non-negative integer.
-#Overall this is what the function does: The function accepts a parameter n, a non-negative integer, and returns the sum of the cubes of all even integers from 2 to n * 2.
-The program returns the sum of the cubes of all even integers from 2 to n * 2, where n is a non-negative integer.
+def func_2(a, b):
+    return a * b // func_1(a, b)
+    #The program returns the integer division of the product of a and b by the result of the function func_1(a, b)
+#Overall this is what the function does: The function accepts two parameters `a` and `b`, returns the integer division of the product of `a` and `b` by the result of `func_1(a, b)`.
+The program returns the integer division of the product of a and b by the result of the function func_1(a, b)
 

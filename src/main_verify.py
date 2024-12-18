@@ -194,6 +194,65 @@ def main(data: dict, config: dict, logger, model, datafile):
                 result_simple_no_fsl_verify = result["simple_no_fsl_verify"]
                 result_complex_no_fsl_verify = result["complex_no_fsl_verify"]
                 result_default_no_fsl_verify = result["default_no_fsl_verify"]
+                # save to log dir
+                save_to_file(description, detail_log_directory / "description.txt")
+                save_to_file(code, detail_log_directory / "program.py")
+                save_to_file(precondition, detail_log_directory / "precondition.txt")
+                # save_to_file(post, detail_log_directory / "postcondition.txt")
+                save_to_file(result_naive, detail_log_directory / "naive.txt")
+                save_to_file(result_naive_no_fsl, detail_log_directory / "naive_no_fsl.txt")
+                # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
+                save_to_file(result_simple, detail_log_directory / "result_simple.txt")
+                save_to_file(result_complex, detail_log_directory / "result_complex.txt")
+                save_to_file(result_default, detail_log_directory / "result_default.txt")
+                save_to_file(result_default_no_fsl, detail_log_directory / "result_default_no_fsl.txt")
+
+                # write to logger
+                logger.debug(f"Dataset: {dataset}")
+                logger.debug(f"model_created: {model_created}")
+                logger.debug(f"model_run: {model}")
+                logger.debug(f"description: {description}")
+                # logger.debug(f"Code:\n{code}")
+                # if dataset == "apps":
+                #     logger.debug(f"Test Pass Rate {task_data['pass_rate']}")
+                # elif dataset == "mbpp":
+                #     logger.debug(f"Base Test Pass Rate: {task_id['base_accuracy']}")
+                #     logger.debug(f"Plus Test Pass Rate: {task_id['plus_accuracy']}")
+                #     logger.debug(f"Assertion Pass Rate: {task_id['assertion_accuracy']}")
+                # logger.debug(f"Postcondition: {post}")
+                logger.debug(f"Correctness: {result}")
+
+                # logger.debug(f"Total Test: {total}")
+                # logger.debug(f"Total Correct: {correct}\n\n\n")
+
+                # # Write task result to CSV logger
+                result = {
+                    "Task ID": task_id,
+                    "Dataset": dataset,
+                    "model_created": model_created,
+                    "model_run": model,
+                    "description": description,
+                    "Code": code,
+                    "Correctness": result_default,
+                    "Post": "post",
+                    "original correctness": original_correctness,
+                    "naive correctness": result_naive,
+                    "annotated correctness": result_complex,
+                    "annotated correctness simple": result_simple,
+                    "naive no fsl correctness": result_naive_no_fsl,
+                    "Correctness no fsl": result_default_no_fsl,
+                    "simple verify": result_simple_verify,
+                    "complex verify": result_complex_verify,
+                    "default verify": result_default_verify,
+                    "simple verify no fsl": result_simple_no_fsl_verify,
+                    "complex verify no fsl": result_complex_no_fsl_verify,
+                    "default verify no fsl": result_default_no_fsl_verify,
+                    "data file": datafile,
+                }
+
+                with open(logger.csv_file, mode='a', newline='') as file:
+                    writer = csv.DictWriter(file, fieldnames=columns)
+                    writer.writerow(result)
 
 
             # result = check_entailment(description, post, code, task_id, config, check_directory)
@@ -298,65 +357,65 @@ def main(data: dict, config: dict, logger, model, datafile):
 
 
 
-        # save to log dir
-        save_to_file(description, detail_log_directory / "description.txt")
-        save_to_file(code, detail_log_directory / "program.py")
-        save_to_file(precondition, detail_log_directory / "precondition.txt")
-        # save_to_file(post, detail_log_directory / "postcondition.txt")
-        save_to_file(result_naive, detail_log_directory / "naive.txt")
-        save_to_file(result_naive_no_fsl, detail_log_directory / "naive_no_fsl.txt")
-        # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
-        save_to_file(result_simple, detail_log_directory / "result_simple.txt")
-        save_to_file(result_complex, detail_log_directory / "result_complex.txt")
-        save_to_file(result_default, detail_log_directory / "result_default.txt")
-        save_to_file(result_default_no_fsl, detail_log_directory / "result_default_no_fsl.txt")
+        # # save to log dir
+        # save_to_file(description, detail_log_directory / "description.txt")
+        # save_to_file(code, detail_log_directory / "program.py")
+        # save_to_file(precondition, detail_log_directory / "precondition.txt")
+        # # save_to_file(post, detail_log_directory / "postcondition.txt")
+        # save_to_file(result_naive, detail_log_directory / "naive.txt")
+        # save_to_file(result_naive_no_fsl, detail_log_directory / "naive_no_fsl.txt")
+        # # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
+        # save_to_file(result_simple, detail_log_directory / "result_simple.txt")
+        # save_to_file(result_complex, detail_log_directory / "result_complex.txt")
+        # save_to_file(result_default, detail_log_directory / "result_default.txt")
+        # save_to_file(result_default_no_fsl, detail_log_directory / "result_default_no_fsl.txt")
 
-        # write to logger
-        logger.debug(f"Dataset: {dataset}")
-        logger.debug(f"model_created: {model_created}")
-        logger.debug(f"model_run: {model}")
-        logger.debug(f"description: {description}")
-        # logger.debug(f"Code:\n{code}")
-        # if dataset == "apps":
-        #     logger.debug(f"Test Pass Rate {task_data['pass_rate']}")
-        # elif dataset == "mbpp":
-        #     logger.debug(f"Base Test Pass Rate: {task_id['base_accuracy']}")
-        #     logger.debug(f"Plus Test Pass Rate: {task_id['plus_accuracy']}")
-        #     logger.debug(f"Assertion Pass Rate: {task_id['assertion_accuracy']}")
-        # logger.debug(f"Postcondition: {post}")
-        logger.debug(f"Correctness: {result}")
+        # # write to logger
+        # logger.debug(f"Dataset: {dataset}")
+        # logger.debug(f"model_created: {model_created}")
+        # logger.debug(f"model_run: {model}")
+        # logger.debug(f"description: {description}")
+        # # logger.debug(f"Code:\n{code}")
+        # # if dataset == "apps":
+        # #     logger.debug(f"Test Pass Rate {task_data['pass_rate']}")
+        # # elif dataset == "mbpp":
+        # #     logger.debug(f"Base Test Pass Rate: {task_id['base_accuracy']}")
+        # #     logger.debug(f"Plus Test Pass Rate: {task_id['plus_accuracy']}")
+        # #     logger.debug(f"Assertion Pass Rate: {task_id['assertion_accuracy']}")
+        # # logger.debug(f"Postcondition: {post}")
+        # logger.debug(f"Correctness: {result}")
 
-        # logger.debug(f"Total Test: {total}")
-        # logger.debug(f"Total Correct: {correct}\n\n\n")
+        # # logger.debug(f"Total Test: {total}")
+        # # logger.debug(f"Total Correct: {correct}\n\n\n")
 
-        # # Write task result to CSV logger
-        result = {
-            "Task ID": task_id,
-            "Dataset": dataset,
-            "model_created": model_created,
-            "model_run": model,
-            "description": description,
-            "Code": code,
-            "Correctness": result_default,
-            "Post": "post",
-            "original correctness": original_correctness,
-            "naive correctness": result_naive,
-            "annotated correctness": result_complex,
-            "annotated correctness simple": result_simple,
-            "naive no fsl correctness": result_naive_no_fsl,
-            "Correctness no fsl": result_default_no_fsl,
-            "simple verify": result_simple_verify,
-            "complex verify": result_complex_verify,
-            "default verify": result_default_verify,
-            "simple verify no fsl": result_simple_no_fsl_verify,
-            "complex verify no fsl": result_complex_no_fsl_verify,
-            "default verify no fsl": result_default_no_fsl_verify,
-            "data file": datafile,
-        }
+        # # # Write task result to CSV logger
+        # result = {
+        #     "Task ID": task_id,
+        #     "Dataset": dataset,
+        #     "model_created": model_created,
+        #     "model_run": model,
+        #     "description": description,
+        #     "Code": code,
+        #     "Correctness": result_default,
+        #     "Post": "post",
+        #     "original correctness": original_correctness,
+        #     "naive correctness": result_naive,
+        #     "annotated correctness": result_complex,
+        #     "annotated correctness simple": result_simple,
+        #     "naive no fsl correctness": result_naive_no_fsl,
+        #     "Correctness no fsl": result_default_no_fsl,
+        #     "simple verify": result_simple_verify,
+        #     "complex verify": result_complex_verify,
+        #     "default verify": result_default_verify,
+        #     "simple verify no fsl": result_simple_no_fsl_verify,
+        #     "complex verify no fsl": result_complex_no_fsl_verify,
+        #     "default verify no fsl": result_default_no_fsl_verify,
+        #     "data file": datafile,
+        # }
 
-        with open(logger.csv_file, mode='a', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=columns)
-            writer.writerow(result)
+        # with open(logger.csv_file, mode='a', newline='') as file:
+        #     writer = csv.DictWriter(file, fieldnames=columns)
+        #     writer.writerow(result)
 
      # Final accuracy and MCC logging
     # rate = correct / total
