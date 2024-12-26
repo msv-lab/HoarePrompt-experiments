@@ -1,6 +1,8 @@
-def func_2(a, b):
-    return a * b // func_1(a, b)
-    #The program returns the integer division of the product of a and b by the result of the function func_1(a, b)
-#Overall this is what the function does: The function accepts two parameters `a` and `b`, returns the integer division of the product of `a` and `b` by the result of `func_1(a, b)`.
-The program returns the integer division of the product of a and b by the result of the function func_1(a, b)
+def func():
+    n, m, k, x, y = map(int, input().split())
+    max_asked = (k + (n - 1)) // (2 * n)
+    min_asked = max(1, max_asked - (n - 1))
+    sergei_asked = (k + x - 1) // (2 * n) + ((k + x - 1) % (2 * n) >= n - x + 1)
+    print(max_asked, min_asked, sergei_asked)
+#Overall this is what the function does: The function accepts parameters n, m, k, x, and y, where n and m are positive integers, k is a non-negative integer, and x and y are positive integers within the range of n and m, but the return value is undefined.
 

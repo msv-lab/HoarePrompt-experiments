@@ -37,25 +37,28 @@
 # ./test_fast.sh apps 5 default_config_4_mini.json
 
 
-!/bin/bash
+
 
 # Start both commands in the background
-./test_verify.sh apps 1 default_config_4_mini.json &
-PID1=$!
-./test_verify.sh apps 1 default_config_llama.json &
-PID2=$!
-./test_verify.sh apps 1 default_config_qwen.json &
-PID3=$!
+# ./test_verify.sh apps 1 default_config_4_mini.json &
+# PID1=$!
+# ./test_verify.sh apps 1 default_config_llama.json &
+# PID2=$!
+# # ./test_verify.sh apps 1 default_config_qwen.json &
+# # PID3=$!
 
-# # Set up trap to kill both processes if Ctrl+C is pressed
-trap "kill $PID1 $PID2 $PID3; exit" SIGINT
+# # # Set up trap to kill both processes if Ctrl+C is pressed
+# # trap "kill $PID1 $PID2 $PID3; exit" SIGINT
 
-# # Wait for both processes to finish
-wait $PID1
-wait $PID2
-wait $PID3
+# # # Wait for both processes to finish
+# wait $PID1
+# wait $PID2
+# wait $PID3
 
 # ./test_fast.sh mbpp 2 default_config.json
 # ./test_fast.sh mbpp 3 default_config.json
 # ./test_fast.sh mbpp 4 default_config.json
 # ./test_fast.sh mbpp 5 default_config.json
+
+# python3 -m src.main_verify --config default_config_4_mini.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_4mini_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new11/apps_4_mini_2
+python3 -m src.main_verify --config default_config_llama.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_llama_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new11/apps_llama_2

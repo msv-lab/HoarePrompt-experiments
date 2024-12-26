@@ -42,7 +42,7 @@ def main(data: dict, config: dict, logger, model, datafile):
 
     columns = [
         "Task ID", "Dataset", "unique_id", "model_created", "model_run", "description", "Code", "Test Result",
-        "Post", "original correctness" ,"naive no fsl correctness" , "data file"]
+        "Post", "original correctness" ,"naive no fsl correctness" , "data file", "logprobs"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -58,6 +58,8 @@ def main(data: dict, config: dict, logger, model, datafile):
     # config_annotated_simple["annotated-type"]="simple"
     config_naive_no_fsl = config_naive.copy()
     config_naive_no_fsl["fsl"] = False
+    config_naive_no_fsl["confidence"] = True
+
     # This is the main loop where the work is done, it tterates over each task in the provided data
     for index, task_data in enumerate(data):
         print(f"Running task {index} out of {len(data)}")
@@ -148,7 +150,7 @@ def main(data: dict, config: dict, logger, model, datafile):
 
                 # Check entailment to determine if the postcondition satisfies the description by invoking HoarePrompt
                 print(f"Running task {index} out of {len(data)}")
-                result_naive_no_fsl=assess(description, code, task_id, config_naive_no_fsl, detail_log_directory_naive_no_fsl, None)
+                result_naive_no_fsl, confidence =assess(description, code, task_id, config_naive_no_fsl, detail_log_directory_naive_no_fsl, None)
                 # result = check_entailment(description, post, code, task_id, config, check_directory)
             except Exception as e:
                 # Handle any errors like API issues and log them also add the task to the failed tasks list
@@ -322,6 +324,7 @@ def main(data: dict, config: dict, logger, model, datafile):
                 # "annotated correctness simple": result_annotated_simple,
                 "naive no fsl correctness": result_naive_no_fsl,
                 "data file": datafile,
+                "logprobs": confidence
             }
 
             with open(logger.csv_file, mode='a', newline='') as file:

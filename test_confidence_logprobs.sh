@@ -15,7 +15,7 @@ CONFIG=$3
 #if config contains the word llamathen make variable model llama
 if [[ $CONFIG == *"llama"* ]]; then
     model="llama"
-elif [[ $CONFIG == *"qwen2.5"* ]]; then
+elif [[ $CONFIG == *"qwen"* ]]; then
     model="qwen2point5"
 #if it contains the word bert then make variable model bert
 elif [[ $CONFIG == *"4_mini"* ]]; then
@@ -28,13 +28,13 @@ fi
 INPUT="${dataset}_${model}_${time}"
 # Define the base path for the data and log directories
 DATA_DIR="/home/jim/HoarePrompt-data/PilotData/data"
-LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilot10/$INPUT"
+LOG_DIR="/home/jim/HoarePrompt-data/Results/Pilot_confidence_simple_pilottemp/$INPUT"
 
 # Create the log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
 
 # Array of data files to process, using correct syntax for variable expansion
-data_files=("/home/jim/HoarePrompt-data/PilotData/data/sampled_elements_code_contests_cleaned.json")
+data_files=("/home/jim/HoarePrompt-data/PilotData/data/pilot_apps1_test.json")
 
 # Inform the user of the number of files being processed
 echo "Processing ${#data_files[@]} data files..."
@@ -42,7 +42,7 @@ echo "Processing ${#data_files[@]} data files..."
 # Loop over each data file and run the command
 for data_file in "${data_files[@]}"; do
     echo "Processing $data_file..."
-    python3 -m src.main_confidence_simple --config "$CONFIG" --data "$data_file" --log "$LOG_DIR"
+    python3 -m src.main_confidence_logprobs --config "$CONFIG" --data "$data_file" --log "$LOG_DIR"
     if [ $? -ne 0 ]; then
         echo "Error processing $data_file. Exiting."
         exit 1
@@ -52,3 +52,4 @@ done
 echo "All files processed successfully. Logs saved in $LOG_DIR."
 
 
+# /home/jim/HoarePrompt-data/PilotData/data/pilot_apps1_test.json
