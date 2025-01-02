@@ -88,6 +88,9 @@ If you do not provide the `--config` argument, the default configuration file (`
 
 The experiment are dependent and will create various directories to organize configuration, data, and logs:
 
+Visit **Path:** [scripts/scripts.md](scripts/scripts.md) for documentation on the different scripts you can use to run experiments.
+All the bash scripts in the helper runners folder of the repo are used to schedule experiments.
+
 1. **Data File**: The data file  is read from the path specified with `--data`. For potential data to use you can consider the sanitized-mbpp.json or you can use the example data in the [input_data folder](./input_data)
 
 2. **Configuration File**: Passed via `--config`, this file contains parameters that guide the behavior of the experiment (model type, training options, etc.). If not provided, `default_config.json` will be used.
