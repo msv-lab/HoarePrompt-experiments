@@ -30,7 +30,7 @@ def calculate_mcc(tp, tn, fp, fn):
     return numerator / denominator
 
 
-def main(data: dict, config: dict, logger, model, datafile):
+def main(data: dict, config: dict, logger, model, run_number, datafile):
     # These variables are used for tracking the number of tasks and accuracy
     total = 0
     correct = 0
@@ -40,10 +40,10 @@ def main(data: dict, config: dict, logger, model, datafile):
 
     # Failed tasks list to store failure details
     failed_tasks = []
+                 
 
     columns = [
-        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "Test Result",
-        "Correctness", "Post", "original correctness", "naive correctness", "annotated correctness", "annotated correctness simple", "naive no fsl correctness" , "Correctness no fsl" , "data file"]
+        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "run_number","original correctness", "summary fsl", "naive correctness fsl", "vanilla", "simple tree", "complex tree",  "summary"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -314,7 +314,6 @@ def main(data: dict, config: dict, logger, model, datafile):
 
         # logger.debug(f"Total Test: {total}")
         # logger.debug(f"Total Correct: {correct}\n\n\n")
-
         # # Write task result to CSV logger
         result = {
             "Task ID": task_id,
@@ -323,15 +322,14 @@ def main(data: dict, config: dict, logger, model, datafile):
             "model_run": model,
             "description": description,
             "Code": code,
-            "Correctness": result_default,
-            "Post": "post",
+            "run_number": run_number,
             "original correctness": original_correctness,
-            "naive correctness": naive_result,
-            "annotated correctness": result_complex,
-            "annotated correctness simple": result_simple,
-            "naive no fsl correctness": result_naive_no_fsl,
-            "Correctness no fsl": result_default_no_fsl,
-            "data file": datafile,
+            "summary fsl": result_default,
+            "naive correctness fsl": naive_result,
+            "vanilla": result_naive_no_fsl,
+            "simple tree": result_complex,
+            "complex tree": result_simple,
+            "summary": result_default_no_fsl,
         }
 
         with open(logger.csv_file, mode='a', newline='') as file:
@@ -367,7 +365,7 @@ if __name__ == "__main__":
     parser.add_argument('--config', type=str, help="Path to custom configuration file")
     parser.add_argument('--data', type=str, help="Path to read data")
     parser.add_argument('--log', type=str, help="Directory to save detailed logs")
-
+    parser.add_argument('--run_number', type=str, help="which repetition of the run this is", default=1)
     args = parser.parse_args()
 
     if args.config:
@@ -386,7 +384,10 @@ if __name__ == "__main__":
         log_directory = Path(args.log)
     else:
         log_directory = Path("Results")
-    
+    # if log_directory does not end with underscore and the run_number then add that to the final name in the path
+    if not str(log_directory).endswith("_" + str(args.run_number)):
+        log_directory = Path(str(log_directory) + f"_{args.run_number}")
+        print(f"Log directory: {log_directory}")
     #if the log directory does not exist, create it
     log_directory.mkdir(parents=True, exist_ok=True)
     
@@ -435,4 +436,4 @@ if __name__ == "__main__":
         f.write(f"model version: {config['model']}\n")
         f.write(f"data file: {data_file_name}\n")
 
-    main(data, config, logger, model, datafile=data_file_name)
+    main(data, config, logger, model, args.run_number, datafile=data_file_name)

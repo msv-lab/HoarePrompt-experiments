@@ -61,4 +61,5 @@
 # ./test_fast.sh mbpp 5 default_config.json
 
 # python3 -m src.main_verify --config default_config_4_mini.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_4mini_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new11/apps_4_mini_2
-python3 -m src.main_verify --config default_config_llama.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_llama_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new11/apps_llama_2
+python3 -m src.main_verify --config default_config_llama.json --data /home/jim/HoarePrompt-data/PilotData/data/selected_pilot_75_apps_llama_temp.json --log /home/jim/HoarePrompt-data/Results/Pilot_new11/apps_llama_2 
+python3 -m src.main_verify --config /home/jim/HoarePrompt-experiments/configs/default_config_qwen.json --data /home/jim/HoarePrompt-data/PilotData/data/old_datasets/pilot5_size_1.json --log /home/jim/HoarePrompt-data/Results/old/test_refractor --run_number 2

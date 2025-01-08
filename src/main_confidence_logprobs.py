@@ -42,7 +42,7 @@ def main(data: dict, config: dict, logger, model, datafile):
 
     columns = [
         "Task ID", "Dataset", "unique_id", "model_created", "model_run", "description", "Code", "Test Result",
-        "Post", "original correctness" ,"naive no fsl correctness" , "data file", "logprobs"]
+        "Post", "original correctness" ,"vanilla" , "data file", "probability"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -322,9 +322,9 @@ def main(data: dict, config: dict, logger, model, datafile):
                 # "naive correctness": naive_result,
                 # "annotated correctness": result_annotated,
                 # "annotated correctness simple": result_annotated_simple,
-                "naive no fsl correctness": result_naive_no_fsl,
+                "vanilla": result_naive_no_fsl,
                 "data file": datafile,
-                "logprobs": confidence
+                "probability": confidence
             }
 
             with open(logger.csv_file, mode='a', newline='') as file:
