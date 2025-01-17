@@ -30,7 +30,7 @@ def calculate_mcc(tp, tn, fp, fn):
     return numerator / denominator
 
 
-def main(data: dict, config: dict, logger, model, datafile):
+def main(data: dict, config: dict, logger, model, run_number, datafile):
     # These variables are used for tracking the number of tasks and accuracy
     total = 0
     correct = 0
@@ -42,8 +42,7 @@ def main(data: dict, config: dict, logger, model, datafile):
     failed_tasks = []
 
     columns = [
-        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "Test Result",
-        "Correctness", "Post", "original correctness", "naive correctness", "annotated correctness", "annotated correctness simple", "naive no fsl correctness" , "Correctness no fsl" , "simple verify", "complex verify", "default verify", "simple verify no fsl", "complex verify no fsl", "default verify no fsl", "data file"]
+        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "summary fsl", "naive correctness fsl", "vanilla", "simple tree", "complex tree",  "summary" , "simple verify fsl", "complex verify fsl", "summary verify fsl", "simple verify", "complex verify", "summary verify"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -63,7 +62,9 @@ def main(data: dict, config: dict, logger, model, datafile):
     for index, task_data in enumerate(data):
         print(f"Running task {index} out of {len(data)}")
         task_id = task_data["task_id"]
+        task_id =str(task_id)            
         task_id = task_id.replace("/", "_")
+
         model_created = task_data["model"]
         dataset = task_data["dataset"]
         code = task_data["generated_code"]
@@ -122,7 +123,7 @@ def main(data: dict, config: dict, logger, model, datafile):
         #     })
         #     continue
         # Create log directories for saving the results like precondition, postcondition, entailment check
-        detail_log_directory = logger.log_dir  / task_id/ f"{task_id}_normal" / model_created
+        detail_log_directory = logger.log_dir  / task_id/ model_created
         pre_directory = detail_log_directory / "extract-precondition"
         post_directory = detail_log_directory / "compute-postconditon"
         check_directory = detail_log_directory / "check-entailment"
@@ -132,13 +133,13 @@ def main(data: dict, config: dict, logger, model, datafile):
         check_directory.mkdir(parents=True, exist_ok=True)
         naive_directory.mkdir(parents=True, exist_ok=True)
         detail_log_directory_no_fsl = logger.log_dir  /  task_id/ f"{task_id}_no_fsl" / model_created
-        detail_log_directory_no_fsl.mkdir(parents=True, exist_ok=True)
+        # detail_log_directory_no_fsl.mkdir(parents=True, exist_ok=True)
         detail_log_directory_annotated = logger.log_dir  /  task_id/ f"{task_id}_annotated" / model_created
-        detail_log_directory_annotated.mkdir(parents=True, exist_ok=True)
-        detail_log_directory_naive = logger.log_dir  / task_id/  f"{task_id}_naive" / model_created
-        detail_log_directory_naive.mkdir(parents=True, exist_ok=True)
-        detail_log_directory_naive_no_fsl = logger.log_dir  / task_id/  f"{task_id}_naive_no_fsl" / model_created
-        detail_log_directory_naive_no_fsl.mkdir(parents=True, exist_ok=True)
+        # detail_log_directory_annotated.mkdir(parents=True, exist_ok=True)
+        detail_log_directory_naive = logger.log_dir  / task_id/  f"{task_id}_naive_fsl" / model_created
+        # detail_log_directory_naive.mkdir(parents=True, exist_ok=True)
+        detail_log_directory_naive_no_fsl = logger.log_dir  / task_id/  f"{task_id}_vanilla" / model_created
+        # detail_log_directory_naive_no_fsl.mkdir(parents=True, exist_ok=True)
         # Extract precondition using HoarePrompt
         precondition = extract_precondition(description, code, config, pre_directory)
         # try:
@@ -200,12 +201,12 @@ def main(data: dict, config: dict, logger, model, datafile):
                 save_to_file(precondition, detail_log_directory / "precondition.txt")
                 # save_to_file(post, detail_log_directory / "postcondition.txt")
                 save_to_file(result_naive, detail_log_directory / "naive.txt")
-                save_to_file(result_naive_no_fsl, detail_log_directory / "naive_no_fsl.txt")
+                save_to_file(result_naive_no_fsl, detail_log_directory / "vanilla.txt")
                 # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
                 save_to_file(result_simple, detail_log_directory / "result_simple.txt")
                 save_to_file(result_complex, detail_log_directory / "result_complex.txt")
-                save_to_file(result_default, detail_log_directory / "result_default.txt")
-                save_to_file(result_default_no_fsl, detail_log_directory / "result_default_no_fsl.txt")
+                save_to_file(result_default, detail_log_directory / "result_summary_fsl.txt")
+                save_to_file(result_default_no_fsl, detail_log_directory / "result_summary.txt")
 
                 # write to logger
                 logger.debug(f"Dataset: {dataset}")
@@ -226,6 +227,7 @@ def main(data: dict, config: dict, logger, model, datafile):
                 # logger.debug(f"Total Correct: {correct}\n\n\n")
 
                 # # Write task result to CSV logger
+
                 result = {
                     "Task ID": task_id,
                     "Dataset": dataset,
@@ -233,21 +235,20 @@ def main(data: dict, config: dict, logger, model, datafile):
                     "model_run": model,
                     "description": description,
                     "Code": code,
-                    "Correctness": result_default,
-                    "Post": "post",
+                    "run_number": run_number,
                     "original correctness": original_correctness,
-                    "naive correctness": result_naive,
-                    "annotated correctness": result_complex,
-                    "annotated correctness simple": result_simple,
-                    "naive no fsl correctness": result_naive_no_fsl,
-                    "Correctness no fsl": result_default_no_fsl,
-                    "simple verify": result_simple_verify,
-                    "complex verify": result_complex_verify,
-                    "default verify": result_default_verify,
-                    "simple verify no fsl": result_simple_no_fsl_verify,
-                    "complex verify no fsl": result_complex_no_fsl_verify,
-                    "default verify no fsl": result_default_no_fsl_verify,
-                    "data file": datafile,
+                    "summary fsl": result_default,
+                    "naive correctness fsl": result_naive,
+                    "vanilla": result_naive_no_fsl,
+                    "simple tree": result_simple,
+                    "complex tree": result_complex,
+                    "summary": result_default_no_fsl,
+                    "simple verify fsl": result_simple_verify,
+                    "complex verify fsl": result_complex_verify,
+                    "summary verify fsl": result_default_verify,
+                    "simple verify": result_simple_no_fsl_verify,
+                    "complex verify": result_complex_no_fsl_verify,
+                    "summary verify": result_default_no_fsl_verify
                 }
 
                 with open(logger.csv_file, mode='a', newline='') as file:
@@ -269,7 +270,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             })
 
             logger.error(f"Error: {e}")
-            break
+            
 
         # try:
         #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
@@ -447,6 +448,8 @@ if __name__ == "__main__":
     parser.add_argument('--data', type=str, help="Path to read data")
     parser.add_argument('--log', type=str, help="Directory to save detailed logs")
 
+    #add another argument but make it optional
+    parser.add_argument('--run_number', type=str, help="which repetition of the run this is", default=1)
     args = parser.parse_args()
 
     if args.config:
@@ -465,7 +468,11 @@ if __name__ == "__main__":
         log_directory = Path(args.log)
     else:
         log_directory = Path("Results")
-    
+
+    # if log_directory does not end with underscore and the run_number then add that to the final name in the path
+    if not str(log_directory).endswith("_" + str(args.run_number)):
+        log_directory = Path(str(log_directory) + f"_{args.run_number}")
+        print(f"Log directory: {log_directory}")
     #if the log directory does not exist, create it
     log_directory.mkdir(parents=True, exist_ok=True)
     
@@ -514,4 +521,4 @@ if __name__ == "__main__":
         f.write(f"model version: {config['model']}\n")
         f.write(f"data file: {data_file_name}\n")
 
-    main(data, config, logger, model, datafile=data_file_name)
+    main(data, config, logger, model, args.run_number , datafile=data_file_name)

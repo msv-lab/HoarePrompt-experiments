@@ -3,3 +3,4 @@
 logs/
 hoareprompt-env/
 src/__pycache__
+output_no*

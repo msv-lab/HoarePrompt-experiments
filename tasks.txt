@@ -1,6 +1,37 @@
-def func_2(a, b):
-    return a * b // func_1(a, b)
-    #The program returns the integer division of the product of a and b by the result of the function func_1(a, b)
-#Overall this is what the function does: The function accepts two parameters `a` and `b`, returns the integer division of the product of `a` and `b` by the result of `func_1(a, b)`.
-The program returns the integer division of the product of a and b by the result of the function func_1(a, b)
+def func():
+    t = int(input())
+    for z in range(t):
+        n, m, k = map(int, input().split())
+        
+        c = []
+        
+        for i in range(k):
+            x, y = map(int, input().split())
+            c.append((y, x, i))
+        
+        c.sort()
+        
+        f = [(1, 0, 0)]
+        
+        s = 0
+        
+        answer = [0] * k
+        
+        for i in range(k):
+            if c[i][1] > f[-1][1]:
+                s += (c[i][0] - 1) * (c[i][1] - f[-1][1])
+                f.append((c[i][0], c[i][1], c[i][2]))
+        
+        answer[f[-1][2]] = 1
+        
+        for i in range(1, len(f) - 1):
+            if f[i][0] < f[i + 1][0]:
+                answer[f[i][2]] = 1
+        
+        print(s + (n - f[-1][1]) * m)
+        
+        print(*answer)
+        
+    #State of the program after the  for loop has been executed: `total` is 0, `i` is `len(f) - 1`, `c` is a list of `k` tuples sorted by the first element, `n` is the last new input integer, `m` is the last new input integer, `k` is the last new input integer, `x` is the last first integer input, `y` is the last second integer input, `s` is the accumulated sum of \((c[i][0] - 1) * (c[i][1] - f[-1][1])\) for all `i` where \(c[i][1] > f[-1][1]\), `f` is a list of tuples from `c` that satisfy the condition \(c[i][1] > f[-1][1]\), and `answer` is a list of `k` zeros with multiple elements set to 1 based on the indices `f[i][2]` where the condition `f[i][0] < f[i + 1][0]` is true; the output of the program is `s + (n - f[-1][1]) * m`.
+#Overall this is what the function does: The function processes `t` test cases, where `t` is an integer such that \(1 \leq t \leq 10^4\). For each test case, it accepts `n`, `m`, and `k` as integers with specified ranges, and `k` pairs of integers representing fountain coordinates. The function returns the results for each test case based on the provided inputs.
 

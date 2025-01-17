@@ -42,7 +42,7 @@ def main(data: dict, config: dict, logger, model, datafile):
 
     columns = [
         "Task ID", "Dataset", "unique_id", "model_created", "model_run", "description", "Code", "Test Result",
-        "Post", "original correctness", "naive correctness" ,"naive no fsl correctness" , "data file"]
+        "Post", "original correctness" ,"vanilla" , "data file"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -62,6 +62,7 @@ def main(data: dict, config: dict, logger, model, datafile):
     for index, task_data in enumerate(data):
         print(f"Running task {index} out of {len(data)}")
         task_id = task_data["task_id"]
+        task_id =str(task_id)
         task_id = task_id.replace("/", "_")
         model_created = task_data["model"]
         dataset = task_data["dataset"]
@@ -141,7 +142,7 @@ def main(data: dict, config: dict, logger, model, datafile):
         # Extract precondition using HoarePrompt
 
         # precondition = extract_precondition(description, code, config, pre_directory)
-        for i in range(1,7):
+        for i in range(1,13):
             try:
                 # Compute postcondition using the precondition and code bycinvoking hoareprompt
                 # post = compute_postcondition(precondition, replaced_code, config, post_directory)
@@ -163,7 +164,7 @@ def main(data: dict, config: dict, logger, model, datafile):
                 })
 
                 #if an nexception occurs go to the next task
-                break
+                
 
         # try:
         #     # Compute postcondition using the precondition and code bycinvoking hoareprompt
@@ -254,25 +255,25 @@ def main(data: dict, config: dict, logger, model, datafile):
         # #     else:
         # #         fp += 1
         
-            try:
-                # Check entailment using naive approach
-                # naive_result = compute_postcondition_naive(description, code, config, naive_directory)
-                print(f"Running task {index} out of {len(data)}")
-                naive_result = assess(description, code, task_id, config_naive, detail_log_directory_naive,None)
-            except Exception as e:
-                # Handle any errors like API issues and log them also add the task to the failed tasks list
-                failed_tasks.append({
-                    "task_id": task_id,
-                    "model_created": model_created,
-                    "dataset": dataset,
-                    "model_run": model,
-                    "code": code,
-                    "fail_reason": f"Error: {e}",
-                    "type_of_run": "naive"
-                })
+            # try:
+            #     # Check entailment using naive approach
+            #     # naive_result = compute_postcondition_naive(description, code, config, naive_directory)
+            #     print(f"Running task {index} out of {len(data)}")
+            #     naive_result = assess(description, code, task_id, config_naive, detail_log_directory_naive,None)
+            # except Exception as e:
+            #     # Handle any errors like API issues and log them also add the task to the failed tasks list
+            #     failed_tasks.append({
+            #         "task_id": task_id,
+            #         "model_created": model_created,
+            #         "dataset": dataset,
+            #         "model_run": model,
+            #         "code": code,
+            #         "fail_reason": f"Error: {e}",
+            #         "type_of_run": "naive"
+            #     })
 
-                logger.error(f"Error: {e}")
-                break
+            #     logger.error(f"Error: {e}")
+            #     break
 
 
 
@@ -283,7 +284,7 @@ def main(data: dict, config: dict, logger, model, datafile):
             # save_to_file(post, detail_log_directory / "postcondition.txt")
             # save_to_file(naive_result, detail_log_directory / "naive.txt")
             save_to_file(result_naive_no_fsl, detail_log_directory / f"naive_no_fsl_{i}.txt")
-            save_to_file(naive_result, detail_log_directory / f"naive_{i}.txt")
+            # save_to_file(naive_result, detail_log_directory / f"naive_{i}.txt")
             # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
             # save_to_file(result, detail_log_directory / "result.txt")
 
@@ -317,10 +318,10 @@ def main(data: dict, config: dict, logger, model, datafile):
                 # "Correctness": result,
                 "Post": "post",
                 "original correctness": original_correctness,
-                "naive correctness": naive_result,
+                # "naive correctness": naive_result,
                 # "annotated correctness": result_annotated,
                 # "annotated correctness simple": result_annotated_simple,
-                "naive no fsl correctness": result_naive_no_fsl,
+                "vanilla": result_naive_no_fsl,
                 "data file": datafile,
             }
 
