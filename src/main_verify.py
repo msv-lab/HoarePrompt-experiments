@@ -14,6 +14,25 @@ from src.file_io import load_json
 from src.logger_setup import logger_setup
 from src.preprocessing import replace_function_name, count_function_defs
 
+import json
+
+
+
+def log_metadata(file_name, config):
+    """
+    Appends a custom metadata line to the same file to indicate a new test session.
+    """
+    # Open (or create if doesn't exist) and append to the file
+    with open("/home/jim/HoarePrompt-experiments/tokens.json", "a") as f:
+        # Some example metadata
+        metadata = {
+            "comment": "New test session starting",
+            "file_name": file_name,
+            "config": config,
+            "timestamp": datetime.now().strftime("%Y%m%d-%H%M%S")
+        }
+        f.write(json.dumps(metadata) + "\n")
+
  # Writes the provided content to a specified file
 def save_to_file(content, file_path):
     with open(file_path, 'w') as file:
@@ -40,9 +59,9 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
 
     # Failed tasks list to store failure details
     failed_tasks = []
-
+    log_metadata(datafile, config)
     columns = [
-        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "summary fsl", "naive correctness fsl", "vanilla", "simple tree", "complex tree",  "summary" , "simple verify fsl", "complex verify fsl", "summary verify fsl", "simple verify", "complex verify", "summary verify"]
+        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "summary fsl", "naive correctness fsl", "vanilla", "vanilla_no_cot" "simple tree", "complex tree",  "summary" , "simple verify fsl", "complex verify fsl", "summary verify fsl", "simple verify", "complex verify", "summary verify"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -172,14 +191,15 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
             print(f"Running task {task_id} with log directory {detail_log_directory}")
             result=assess(description, code, task_id, config_annotated, detail_log_directory, None)
             #if result is nopt list with length 3
-            if not isinstance(result, dict) or len(result) != 12:
-                print(f"Result is not a dict with 12 elements: {result}")
-                raise ValueError(f"Result is not a dict with 12 elements: {result}")
+            if not isinstance(result, dict) or len(result) != 13:
+                print(f"Result is not a dict with 13 elements: {result}")
+                raise ValueError(f"Result is not a dict with 13 elements: {result}")
             else:
                 # result= {"naive": correctness_naive, "naive_no_fsl": correctness_naive_no_fsl , "simple": correctness_simple[0], "complex": correctness_complex[0], "default": correctness_default[0], "default_no_fsl": correctness_default_no_fsl[0], "simple_verify": correctness_simple_verify[0], "complex_verify": correctness_complex_verify[0], "default_verify": correctness_default_verify[0], "simple_no_fsl_verify": correctness_simple_no_fsl_verify[0], "complex_no_fsl_verify": correctness_complex_no_fsl_verify[0], "default_no_fsl_verify": correctness_default_no_fsl_verify[0]}
                 
                 result_naive = result["naive"]
                 result_naive_no_fsl = result["naive_no_fsl"]
+                result_vanilla_no_cot = result["vanilla_no_cot"]
 
                 result_simple = result["simple"]
                 result_complex = result["complex"]
@@ -200,6 +220,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
                 # save_to_file(post, detail_log_directory / "postcondition.txt")
                 save_to_file(result_naive, detail_log_directory / "naive.txt")
                 save_to_file(result_naive_no_fsl, detail_log_directory / "vanilla.txt")
+                save_to_file(result_vanilla_no_cot, detail_log_directory / "vanilla_no_cot.txt")
                 # save_to_file(result_annotated, detail_log_directory / "annotated.txt")
                 save_to_file(result_simple, detail_log_directory / "result_simple.txt")
                 save_to_file(result_complex, detail_log_directory / "result_complex.txt")
@@ -238,6 +259,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
                     "summary fsl": result_default,
                     "naive correctness fsl": result_naive,
                     "vanilla": result_naive_no_fsl,
+                    "vanilla_no_cot": result_vanilla_no_cot,
                     "simple tree": result_simple,
                     "complex tree": result_complex,
                     "summary": result_default_no_fsl,

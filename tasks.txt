@@ -1,6 +1,16 @@
-def func_1(N):
-    return [{} for _ in range(N)]
-    #The program returns a list containing N dictionaries (each dictionary is represented as {})
-#Overall this is what the function does: The function accepts a parameter `N`, a non-negative integer, and returns a list containing `N` dictionaries.
-The program returns a list containing N dictionaries (each dictionary is represented as {})
+def func():
+    n, m, k = map(int, input().split())
+    a, b = map(int, input().split())
+    a_floor = (a - 1) % m + 1
+    a_block = (a - 1) // (m * k) + 1
+    b_floor = (b - 1) % m + 1
+    b_block = (b - 1) // (m * k) + 1
+    min_block_time = min(abs(a_block - b_block), n - abs(a_block - b_block)) * 15
+    if (a_floor > b_floor) :
+        min_floor_time = (a_floor - b_floor) * 5 + 10
+    else :
+        min_floor_time = (b_floor - a_floor) * 5 + 10
+    #State: `a_floor` is equal to (a - 1) % m + 1, `a_block` is ((a - 1) // (m * k)) + 1, `b_floor` is (b - 1) % m + 1, `b_block` is (b - 1) // (m * k) + 1, `min_block_time` is calculated as min(abs(a_block - b_block), n - abs(a_block - b_block)) * 15, `min_floor_time` is either (a_floor - b_floor) * 5 + 10 if `a_floor` > `b_floor`, or (b_floor - a_floor) * 5 + 10 if `a_floor` ≤ `b_floor`, `n`, `m`, `k` are assigned values from input split and converted to integers, `a` and `b` are integers from input with 1 ≤ a, b ≤ n·m·k and a ≠ b.
+    print(min_block_time + min_floor_time)
+#Overall this is what the function does: The function accepts no parameters and returns nothing.
 
