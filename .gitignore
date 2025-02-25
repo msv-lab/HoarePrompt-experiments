@@ -3,3 +3,5 @@
 logs/
 hoareprompt-env/
 src/__pycache__
+src/postprocessing_neww.py
+helper_runners/test_verify_yh.sh
