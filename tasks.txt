@@ -1,16 +1,27 @@
 def func():
-    n, m, k = map(int, input().split())
-    a, b = map(int, input().split())
-    a_floor = (a - 1) % m + 1
-    a_block = (a - 1) // (m * k) + 1
-    b_floor = (b - 1) % m + 1
-    b_block = (b - 1) // (m * k) + 1
-    min_block_time = min(abs(a_block - b_block), n - abs(a_block - b_block)) * 15
-    if (a_floor > b_floor) :
-        min_floor_time = (a_floor - b_floor) * 5 + 10
-    else :
-        min_floor_time = (b_floor - a_floor) * 5 + 10
-    #State: `a_floor` is equal to (a - 1) % m + 1, `a_block` is ((a - 1) // (m * k)) + 1, `b_floor` is (b - 1) % m + 1, `b_block` is (b - 1) // (m * k) + 1, `min_block_time` is calculated as min(abs(a_block - b_block), n - abs(a_block - b_block)) * 15, `min_floor_time` is either (a_floor - b_floor) * 5 + 10 if `a_floor` > `b_floor`, or (b_floor - a_floor) * 5 + 10 if `a_floor` ≤ `b_floor`, `n`, `m`, `k` are assigned values from input split and converted to integers, `a` and `b` are integers from input with 1 ≤ a, b ≤ n·m·k and a ≠ b.
-    print(min_block_time + min_floor_time)
-#Overall this is what the function does: The function accepts no parameters and returns nothing.
+    t = int(input())
+    for _ in range(t):
+        n, k = map(int, input().split())
+        
+        n_back = n
+        
+        s = (n + 1) // 2
+        
+        n = (n + 1) // 2
+        
+        m = 1
+        
+        while s < k:
+            if n == 0:
+                s = n_back
+                n = 1
+                break
+            m *= 2
+            n //= 2
+            s += n
+        
+        print((2 * (k - (s - n)) - 1) * m)
+        
+    #State: Output State: `t` test cases are processed, and for each test case, the result is printed based on the given formula. The final state of `t`, `n`, `k`, `n_back`, `s`, `m`, and `n` after all iterations will depend on the input values for each test case, but the output will be a series of integers generated from the formula `(2 * (k - (s - n)) - 1) * m`.
+#Overall this is what the function does: The function accepts no explicit parameters but processes test cases where each test case includes three values: t (a positive integer such that 1 ≤ t ≤ 5 ⋅ 10^4), n (a positive integer such that 1 ≤ k ≤ n), and k (a positive integer such that 1 ≤ k ≤ n). For each test case, it returns information based on the values of n and k.
 

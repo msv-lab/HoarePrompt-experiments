@@ -63,10 +63,10 @@ def calculate_reruns_aggregate(X, P, C, epsilon):
 
 # Example usage
 if __name__ == "__main__":
-    X = 100 # Number of programs in the dataset
-    P = 0.89  # Consistency of response
-    C = 0.95  # Confidence level (95%)
-    epsilon = 0.02  # Margin of error (2%)
+    X = 850 # Number of programs in the dataset
+    P = 0.96  # Consistency of response
+    C = 0.99  # Confidence level (95%)
+    epsilon = 0.01  # Margin of error (2%)
 
     R = calculate_reruns_aggregate(X, P, C, epsilon)
     print(f"Number of reruns needed for aggregate version: {R}")

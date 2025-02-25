@@ -23,7 +23,7 @@ def log_metadata(file_name, config):
     Appends a custom metadata line to the same file to indicate a new test session.
     """
     # Open (or create if doesn't exist) and append to the file
-    with open("./tokens.json", "a") as f:
+    with open("/home/jim/HoarePrompt-experiments/tokens.json", "a") as f:
         # Some example metadata
         metadata = {
             "comment": "New test session starting",
@@ -61,7 +61,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
     failed_tasks = []
     log_metadata(datafile, config)
     columns = [
-        "Task ID", "unique_id" ,"Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "tester"]
+        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "tester"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
@@ -72,15 +72,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
     for index, task_data in enumerate(data):
         print(f"Running task {index} out of {len(data)}")
         task_id = task_data["task_id"]
-        if "unique_id" in task_data :
-            unique_id = task_data["unique_id"]
-        else:
-            unique_id = task_id
-        task_id =str(task_id)            
         task_id = task_id.replace("/", "_")
-
-        unique_id = str(unique_id)
-        unique_id = unique_id.replace("/", "_")
         model_created = task_data["model"]
         dataset = task_data["dataset"]
         code = task_data["generated_code"]
@@ -139,7 +131,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
         #     })
         #     continue
         # Create log directories for saving the results like precondition, postcondition, entailment check
-        detail_log_directory = logger.log_dir  / unique_id/ model_created
+        detail_log_directory = logger.log_dir  / task_id/ model_created
         detail_log_directory.mkdir(parents=True, exist_ok=True)
         # pre_directory = detail_log_directory / "extract-precondition"
         # post_directory = detail_log_directory / "compute-postconditon"
@@ -222,7 +214,6 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
 
                 result = {
                     "Task ID": task_id,
-                    'unique_id': unique_id,
                     "Dataset": dataset,
                     "model_created": model_created,
                     "model_run": model,
