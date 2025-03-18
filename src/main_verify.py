@@ -18,20 +18,6 @@ import json
 
 
 
-def log_metadata(file_name, config):
-    """
-    Appends a custom metadata line to the same file to indicate a new test session.
-    """
-    # Open (or create if doesn't exist) and append to the file
-    with open("./tokens.json", "a") as f:
-        # Some example metadata
-        metadata = {
-            "comment": "New test session starting",
-            "file_name": file_name,
-            "config": config,
-            "timestamp": datetime.now().strftime("%Y%m%d-%H%M%S")
-        }
-        f.write(json.dumps(metadata) + "\n")
 
  # Writes the provided content to a specified file
 def save_to_file(content, file_path):
@@ -59,14 +45,26 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
 
     # Failed tasks list to store failure details
     failed_tasks = []
-    log_metadata(datafile, config)
     columns = [
         "Task ID", "unique_id" ,"Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "tester"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
             writer.writeheader()
-    config["tester"] = True
+    if "confidence" not in config:
+        config["confidence"] = False
+    if "fsl" not in config:
+        config["fsl"] = False
+    if "concat_simple" not in config:
+        config["concat_simple"] = False
+    if "COT" not in config:
+        config["COT"] = True
+    if config["assessment-mode"]== "naive-test":
+        print("Assessment mode is naive-tes tuse src.main_tester")
+        return
+    if config["entailment-mode"]== "verify-answer":
+        print("Entailment mode is  verify-answer tuse src.main_tester ")
+        return
     # This is the main loop where the work is done, it tterates over each task in the provided data
     #for loop to include the index and the task in the data
     for index, task_data in enumerate(data):

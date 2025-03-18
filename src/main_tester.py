@@ -18,20 +18,7 @@ import json
 
 
 
-def log_metadata(file_name, config):
-    """
-    Appends a custom metadata line to the same file to indicate a new test session.
-    """
-    # Open (or create if doesn't exist) and append to the file
-    with open("/home/jim/HoarePrompt-experiments/tokens.json", "a") as f:
-        # Some example metadata
-        metadata = {
-            "comment": "New test session starting",
-            "file_name": file_name,
-            "config": config,
-            "timestamp": datetime.now().strftime("%Y%m%d-%H%M%S")
-        }
-        f.write(json.dumps(metadata) + "\n")
+
 
  # Writes the provided content to a specified file
 def save_to_file(content, file_path):
@@ -59,19 +46,37 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
 
     # Failed tasks list to store failure details
     failed_tasks = []
-    log_metadata(datafile, config)
     columns = [
-        "Task ID", "Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "tester"]
+        "Task ID", "unique_id", "Dataset", "model_created", "model_run", "description", "Code", "run_number", "original correctness", "tester"]
     if not os.path.exists(logger.csv_file):
         with open(logger.csv_file, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
             writer.writeheader()
-    config["tester"] = True
+    if "confidence" not in config:
+        config["confidence"] = False
+    if "fsl" not in config:
+        config["fsl"] = False
+    if "concat_simple" not in config:
+        config["concat_simple"] = False
+    if "COT" not in config:
+        config["COT"] = True
+    if config["assessment-mode"]!= "naive-test":
+        print("Assessment mode is not naive-test")
+        return
+    if config["entailment-mode"]!= "verify-answer":
+        print("Entailment mode is not verify-answer")
+        return
+
     # This is the main loop where the work is done, it tterates over each task in the provided data
     #for loop to include the index and the task in the data
     for index, task_data in enumerate(data):
         print(f"Running task {index} out of {len(data)}")
         task_id = task_data["task_id"]
+        if "unique_id" in task_data :
+            unique_id = task_data["unique_id"]
+        else:
+            unique_id = task_id
+        task_id =str(task_id)            
         task_id = task_id.replace("/", "_")
         model_created = task_data["model"]
         dataset = task_data["dataset"]
@@ -131,7 +136,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
         #     })
         #     continue
         # Create log directories for saving the results like precondition, postcondition, entailment check
-        detail_log_directory = logger.log_dir  / task_id/ model_created
+        detail_log_directory = logger.log_dir  / unique_id/ model_created
         detail_log_directory.mkdir(parents=True, exist_ok=True)
         # pre_directory = detail_log_directory / "extract-precondition"
         # post_directory = detail_log_directory / "compute-postconditon"
@@ -182,14 +187,21 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
             total += 1
             print(f"Running task {task_id} with log directory {detail_log_directory}")
             result=assess(description, code, task_id, config, detail_log_directory, None)
-            #if result is nopt list with length 3
-            if not isinstance(result, dict) or len(result) != 1:
-                print(f"Result is not a dict with 1 element: {result}")
-                raise ValueError(f"Result is not a dict with 1 element: {result}")
+            #if result is string trim spaces and convert to lower case
+            if type(result) == str:
+                result = result.trim().toLower()
+                if result == "true":
+                    result = True
+                elif result == "false":
+                    result = False
+            #if the response is not a boolean value oir a string that is after cleaned true opf false
+            if not type(result) == bool :
+                print(f"Result is not a true or false: {result}")
+                raise ValueError(f"Result is not a bool: {result}")
             else:
                 # result= {"naive": correctness_naive, "naive_no_fsl": correctness_naive_no_fsl , "simple": correctness_simple[0], "complex": correctness_complex[0], "default": correctness_default[0], "default_no_fsl": correctness_default_no_fsl[0], "simple_verify": correctness_simple_verify[0], "complex_verify": correctness_complex_verify[0], "default_verify": correctness_default_verify[0], "simple_no_fsl_verify": correctness_simple_no_fsl_verify[0], "complex_no_fsl_verify": correctness_complex_no_fsl_verify[0], "default_no_fsl_verify": correctness_default_no_fsl_verify[0]}
                 
-                result_tester= result["tester"]
+                result_tester= result
                 save_to_file(result_tester, detail_log_directory / "result_tester.txt")
 
                 # write to logger
@@ -205,7 +217,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
                 #     logger.debug(f"Plus Test Pass Rate: {task_id['plus_accuracy']}")
                 #     logger.debug(f"Assertion Pass Rate: {task_id['assertion_accuracy']}")
                 # logger.debug(f"Postcondition: {post}")
-                logger.debug(f"Correctness: {result}")
+                logger.debug(f"tester: {result_tester}")
 
                 # logger.debug(f"Total Test: {total}")
                 # logger.debug(f"Total Correct: {correct}\n\n\n")
@@ -214,6 +226,7 @@ def main(data: dict, config: dict, logger, model, run_number, datafile):
 
                 result = {
                     "Task ID": task_id,
+                    "unique_id": unique_id,
                     "Dataset": dataset,
                     "model_created": model_created,
                     "model_run": model,
