@@ -1,0 +1,11 @@
+{"input": "10\n1 1\n1 4\n5 3\n4 5\n11 9\n83 91\n1032 9307\n839204 7281\n1000000000 1000000000\n53110 2024", "output": "Bob\nAlice\nBob\nAlice\nBob\nBob\nAlice\nAlice\nBob\nBob"}
+{"input": "1\n1 1", "output": "Bob"}
+{"input": "1\n2 2", "output": "Bob"}
+{"input": "1\n1 2", "output": "Alice"}
+{"input": "1\n1000000000 999999999", "output": "Alice"}
+{"input": "1\n999999999 1000000000", "output": "Alice"}
+{"input": "1\n3 1", "output": "Bob"}
+{"input": "1\n5 5", "output": "Bob"}
+{"input": "1\n6 6", "output": "Bob"}
+{"input": "1\n100 1", "output": "Alice"}
+{"input": "1\n1 100", "output": "Alice"}

@@ -1,0 +1,11 @@
+{"input": "3\n3 3\n2 4\n5 3", "output": "Yes\nNo\nYes"}
+{"input": "1\n1 0", "output": "No"}
+{"input": "1\n1 1", "output": "Yes"}
+{"input": "1\n2 0", "output": "Yes"}
+{"input": "1\n2 1", "output": "No"}
+{"input": "1\n2 2", "output": "Yes"}
+{"input": "1\n100 50", "output": "Yes"}
+{"input": "1\n100 100", "output": "Yes"}
+{"input": "1\n100 99", "output": "No"}
+{"input": "10\n10 10\n5 5\n4 3\n3 2\n2 1\n1 0\n0 0\n100 100\n100 99\n100 51", "output": "Yes\nYes\nNo\nNo\nNo\nNo\nYes\nYes\nNo\nNo"}
+{"input": "2\n99 1\n99 98", "output": "Yes\nNo"}

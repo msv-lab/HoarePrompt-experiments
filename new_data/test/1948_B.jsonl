@@ -1,0 +1,11 @@
+{"input": "3\n4\n12 3 45 67\n3\n12 28 5\n2\n0 0", "output": "YES\nNO\nYES"}
+{"input": "1\n4\n9 12 23 34", "output": "YES"}
+{"input": "1\n5\n90 21 3 45 9", "output": "NO"}
+{"input": "1\n3\n29 19 10", "output": "NO"}
+{"input": "1\n6\n99 98 97 2 1 0", "output": "NO"}
+{"input": "1\n2\n56 65", "output": "YES"}
+{"input": "1\n7\n1 1 1 1 1 1 1", "output": "YES"}
+{"input": "1\n8\n15 26 37 48 59 70 81 92", "output": "YES"}
+{"input": "1\n4\n10 11 12 13", "output": "YES"}
+{"input": "1\n3\n77 8 32", "output": "YES"}
+{"input": "1\n5\n0 0 0 0 0", "output": "YES"}

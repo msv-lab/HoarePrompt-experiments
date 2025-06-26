@@ -1,0 +1,11 @@
+{"input": "8\n2 1\nW\nB\n6 6\nWWWWBW\nWBWWWW\nBBBWWW\nBWWWBB\nWWBWBB\nBBBWBW\n1 1\nW\n2 2\nBB\nBB\n3 4\nBWBW\nWBWB\nBWBW\n4 2\nBB\nBB\nWW\nWW\n4 4\nWWBW\nBBWB\nWWBB\nBBBB\n1 5\nWBBWB", "output": "NO\nYES\nYES\nYES\nYES\nNO\nYES\nNO"}
+{"input": "1\n3 3\nWBW\nWBW\nWBW", "output": "YES"}
+{"input": "1\n4 4\nWWWW\nWWWW\nWWWW\nWWBB", "output": "YES"}
+{"input": "1\n2 3\nBBB\nBWW", "output": "YES"}
+{"input": "1\n5 5\nWBWBW\nBWBWB\nWBWBW\nBWBWB\nWBWBW", "output": "YES"}
+{"input": "1\n6 1\nB\nB\nW\nB\nW\nB", "output": "YES"}
+{"input": "1\n3 3\nBBW\nBWW\nBBB", "output": "YES"}
+{"input": "1\n4 4\nBBBB\nWBWB\nWBWB\nBBBB", "output": "YES"}
+{"input": "1\n7 7\nWWWWWWW\nWWWWWWW\nWWWWWWW\nWWWWWWW\nWWWWBBB\nWWBBWWW\nWBBBWWW", "output": "YES"}
+{"input": "1\n2 5\nWWWWW\nBBBBW", "output": "YES"}
+{"input": "1\n5 3\nBBW\nBBW\nBBW\nBBW\nBBW", "output": "NO"}

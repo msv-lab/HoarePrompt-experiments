@@ -1,0 +1,11 @@
+{"input": "3 5\n.. .. R0 .. ..\nRG .. .Q .. BG\n.. .. B0 .. ..\n12\nR0 D\nR0 C .Q\nR0 R\nR0 T\nR0 D\nB0 R\nB0 U\nB0 C .Q\nB0 L\nB0 L\nB0 L\nB0 T", "output": "11 BLUE GOAL\nFINAL SCORE: 0 1"}
+{"input": "3 3\nRG .. ..\n.. .Q BG\nR0 .. B0\n0", "output": "FINAL SCORE: 0 0"}
+{"input": "3 3\nRG .. R0\n.Q .. ..\n.. .. BG\n1\nR0 C .Q", "output": "FINAL SCORE: 0 0"}
+{"input": "5 5\nRG .. .. .. RG\n.. R0 .B B1 ..\n.. .Q .. .. ..\n.. B0 .. R1 ..\nBG .. .. .. BG\n5\nR0 R\nR0 C .Q\n.B D\nB1 L\nB1 C .B", "output": "0 R0 ELIMINATED\nFINAL SCORE: 0 0"}
+{"input": "3 5\nRG .. R0 .. RG\n.Q R0 .. B0 BG\nR1 .. .. .. ..\n5\nR0 L\nR0 L\nR0 C .Q\nR0 T\nB0 L", "output": "FINAL SCORE: 0 0"}
+{"input": "3 5\nR0 .B BG .. ..\n.. .Q .. .. ..\nRG .. B0 .. ..\n2\nR0 R\nB0 U", "output": "0 R0 ELIMINATED\nFINAL SCORE: 0 0"}
+{"input": "7 3\nRG .. ..\nR0 B0 .B\n.Q R1 B1\n.. .. ..\n.. .. ..\n.. .. ..\nBG .. ..\n6\nR0 R\nB0 R\nR1 L\nR1 C .Q\nR1 R\n.B U", "output": "1 B0 ELIMINATED\nFINAL SCORE: 0 0"}
+{"input": "5 3\nRG .. BG\n.. R0 ..\n.Q .B ..\n.. B0 ..\nRG .. BG\n0", "output": "FINAL SCORE: 0 0"}
+{"input": "5 5\nRG .. .. .. RG\nR0 .. B1 .B ..\n.. .Q .. .. ..\n.. B0 R1 .. ..\nBG .. .. .. BG\n10\nR0 R\nR0 R\nR0 C .Q\nR0 D\nR0 R\nR0 T\nB1 U\nB1 L\nB1 C .Q\nB1 D", "output": "FINAL SCORE: 0 0"}
+{"input": "3 7\nRG .. R0 .. .Q .. RG\n.. .. .. .B .. .. ..\nBG .. B0 .. .. .. BG\n4\nR0 R\nR0 C .Q\n.B L\nB0 L", "output": "FINAL SCORE: 0 0"}
+{"input": "9 3\nRG .. ..\nR0 .. B0\n.. .. ..\nBG .Q ..\n.. .B ..\nRG .. ..\nB1 .. R1\n.. .. ..\nBG .. RG\n0", "output": "FINAL SCORE: 0 0"}

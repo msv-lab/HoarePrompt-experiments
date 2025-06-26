@@ -1,0 +1,11 @@
+{"input": "4\n1 2\n2 1\n2 2\n2 3", "output": "ab\naa\nbaab\nabcbac"}
+{"input": "1\n26 26", "output": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"}
+{"input": "1\n1 1", "output": "a"}
+{"input": "1\n26 1", "output": "aaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"input": "1\n2 26", "output": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"}
+{"input": "1\n5 3", "output": "abcabcabcabcabc"}
+{"input": "1\n3 5", "output": "abcdeabcdeabcde"}
+{"input": "1\n4 4", "output": "abcdabcdabcdabcd"}
+{"input": "1\n1 2", "output": "ab"}
+{"input": "1\n3 3", "output": "abcabcabc"}
+{"input": "1\n2 5", "output": "abcdeabcde"}
